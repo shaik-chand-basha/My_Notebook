@@ -60,7 +60,9 @@ int main()
         bool loginsuccess = p.login();
         if (loginsuccess)
         {
+             ShowConsoleCursor(false);
             welcome();
+            ShowConsoleCursor(true);
             main_menu();
         }
     }
@@ -210,7 +212,7 @@ bool checkfile()
         std::ofstream ffile5("files/Tasks/_$lastfile$_/lastopened.txt");
         std::ofstream ffile6("files/Notes/recents.note");
         std::ofstream ffile7("files/Close-Window-To-Continue.txt");
-        std::ofstream ffile8("files/security/question.txt");
+        std::ofstream ffile8("files/Private/question.txt");
         ffile.close();
         ffile1.close();
         ffile2.close();
@@ -260,7 +262,7 @@ std::string IncryptDecrypt::decrypt(std::string decryptTemp)
     decrypted = str;
     return decrypted;
 }
-std::string Privacy::input_password(std::string display, bool check)
+std::string Privacy::input_password(std::string display, bool showpass)
 {
     system("color 07");
     bool passEmpty = true;
@@ -304,7 +306,7 @@ std::string Privacy::input_password(std::string display, bool check)
         else
         {
             passw[i] = temp;
-            if (check)
+            if (showpass)
                 std::cout << temp;
             else
                 std::cout << "X";
@@ -313,11 +315,11 @@ std::string Privacy::input_password(std::string display, bool check)
     }
     passw[i] = '\0';
     std::string s = passw;
-
     return s;
 }
 bool Privacy::login()
 {
+    ShowConsoleCursor(false);
     system("cls");
     gotoxy(50, 10);
     std::cout << "MY NOTEBOOK";
@@ -356,6 +358,8 @@ bool Privacy::login()
                 enterPassW = input_password("|  ENTER PASSWORD  | ", false);
                 if (enterPassW.length() == 0)
                 {
+                    gotoxy(44, 12);
+                    std::cout << " |  ENTER PASSWORD  | ";
                     continue;
                 }
                 if (password == enterPassW)
@@ -376,21 +380,24 @@ bool Privacy::login()
                         choice = getch();
                         if (choice == 'y' || choice == 'Y')
                         {
-                            std::ifstream securityQuestion("files/security/question.txt");
+                            std::ifstream securityQuestion("files/Private/question.txt");
                             std::string e_teachername;
                             std::string r_teachername;
                             if (securityQuestion.is_open())
                             {
                                 securityQuestion >> r_teachername;
                                 r_teachername = decrypt(r_teachername);
-                                gotoxy(34, 15);
+                                system("cls");
+                                system("color 07");
+                                gotoxy(34, 10);
                                 std::cout << "Enter your favourite teacher name: ";
+                                ShowConsoleCursor(true);
                                 std::getline(std::cin, e_teachername);
                                 if (e_teachername == r_teachername)
                                 {
-                                    gotoxy(34, 16);
+                                    gotoxy(34, 12);
                                     std::cout << "Your Password is : \'" << password << "\'";
-                                    gotoxy(45, 17);
+                                    gotoxy(45, 14);
                                     std::cout << "Please restart";
                                     getch();
                                     exit(0);
@@ -402,15 +409,17 @@ bool Privacy::login()
                     }
                     gotoxy(45, 14);
                     std::cerr << "Password incorrect";
-                    Sleep(1000);
-                    gotoxy(44, 14);
-                    std::cerr << "                       ";
+                    Sleep(300);
+                    gotoxy(44, 12);
+                    std::cout << " |  ENTER PASSWORD  | ";
+                    gotoxy(43, 14);
+                    std::cerr << "                                    ";
                     continue;
                 }
             }
         }
     }
-
+    ShowConsoleCursor(true);
     return true;
 }
 void Privacy::set_password()
@@ -510,9 +519,8 @@ void Privacy::security_Question(bool set)
     system("cls");
     if (set)
     {
-        gotoxy(30, 10);
+        gotoxy(20, 10);
         std::cout << "Enter your favourite teacher name:  ";
-        gotoxy(45, 11);
         std::getline(std::cin, securityQ);
         if (securityQ.length() == 0)
         {
@@ -520,7 +528,9 @@ void Privacy::security_Question(bool set)
         }
         else
         {
-            std::ofstream sq("files/security/question.txt", std::ios::trunc);
+            
+            showMessage("your favourite teacher name:  "+securityQ,"07",false);
+            std::ofstream sq("files/Private/question.txt", std::ios::trunc);
             if (sq.is_open())
             {
                 securityQ = incrypt(securityQ);
@@ -544,7 +554,7 @@ void Privacy::security_Question(bool set)
         gotoxy(45, 13);
         std::cout << " +================+";
         std::ifstream fpass("files/Private/password.txt");
-        if (!fpass.is_open())
+        if (fpass.is_open())
         {
 
             fpass >> password;
@@ -591,7 +601,7 @@ void main_menu()
     std::cout << "6.Change Name";
     gotoxy(48, 15);
     std::cout << "7.Exit";
-    gotoxy(30, 16);
+    gotoxy(30, 17);
     std::cout << "Select your option: ";
     char op;
     op = getch();
@@ -622,9 +632,8 @@ void main_menu()
         gotoxy(49, 17);
         std::cout << "Change Password";
         Sleep(100);
-        Privacy *obj1 = new Privacy();
-        obj1->change_password();
-        delete obj1;
+        Privacy p;
+        p.change_password();
         break;
     }
     case '4':
@@ -632,9 +641,8 @@ void main_menu()
         gotoxy(49, 17);
         std::cout << "change security question";
         Sleep(100);
-        Privacy *obj1 = new Privacy();
-        obj1->security_Question(false);
-        delete obj1;
+        Privacy p;
+        p.security_Question(false);
         break;
     }
 
@@ -659,7 +667,7 @@ void main_menu()
         break;
     }
     case '7':
-        gotoxy(49, 16);
+        gotoxy(49, 17);
         std::cout << "Do you want to exit?(Y/N)";
         op = getch();
         if (op == 'y' || op == 'Y')
