@@ -20,6 +20,7 @@ void ShowConsoleCursor(bool);
 void notebook();
 void welcome();
 bool showMessage(std::string, std::string, bool);
+void change_name();
 void main_menu();
 std::vector<std::string> randomQuote;
 std::string oneQuote;
@@ -49,6 +50,7 @@ public:
 };
 int main()
 {
+    system("title MY NOTEBOOK");
     if (!checkfile())
     {
         showMessage("Please Restart", "07", false);
@@ -60,10 +62,14 @@ int main()
         bool loginsuccess = p.login();
         if (loginsuccess)
         {
-             ShowConsoleCursor(false);
+            ShowConsoleCursor(false);
             welcome();
             ShowConsoleCursor(true);
             main_menu();
+        }
+        else
+        {
+            exit(0);
         }
     }
 }
@@ -321,8 +327,6 @@ bool Privacy::login()
 {
     ShowConsoleCursor(false);
     system("cls");
-    gotoxy(50, 10);
-    std::cout << "MY NOTEBOOK";
     gotoxy(45, 11);
     std::cout << " +================+";
     gotoxy(45, 12);
@@ -337,7 +341,8 @@ bool Privacy::login()
         fpass1.close();
         fpass.close();
         showMessage("System error!", "04", false);
-        exit(0);
+        system("color 07");
+        return false;
     }
     else
     {
@@ -348,6 +353,7 @@ bool Privacy::login()
         if (password.empty())
         {
             set_password();
+            system("color 07");
             return true;
         }
         else
@@ -400,12 +406,14 @@ bool Privacy::login()
                                     gotoxy(45, 14);
                                     std::cout << "Please restart";
                                     getch();
-                                    exit(0);
+                                    system("color 07");
+                                    return false;
                                 }
                             }
                         }
                         showMessage("For security reasons please login after sometime", "04", false);
-                        exit(0);
+                        system("color 07");
+                        return false;
                     }
                     gotoxy(45, 14);
                     std::cerr << "Password incorrect";
@@ -420,6 +428,7 @@ bool Privacy::login()
         }
     }
     ShowConsoleCursor(true);
+    system("color 07");
     return true;
 }
 void Privacy::set_password()
@@ -451,66 +460,23 @@ void Privacy::set_password()
 }
 void Privacy::change_password()
 {
-    system("cls");
-    notebook();
-    gotoxy(46, 6);
-    std::cout << "Change Password";
-    gotoxy(44, 7);
-    std::cout << " +================+";
-    gotoxy(45, 11);
-    std::cout << " +================+";
-    gotoxy(45, 12);
-    std::cout << "|  ENTER PASSWORD  |";
-    gotoxy(45, 13);
-    std::cout << " +================+";
-    std::ifstream fpass("files/Private/password.txt");
-    if (!fpass.is_open())
+    bool loginsuccess = login();
+    if (loginsuccess)
     {
-        showMessage("System error!", "04", false);
+        system("color 02");
+        Sleep(1000);
+        system("cls");
+        notebook();
+        gotoxy(46, 6);
+        std::cout << "Change Password";
+        gotoxy(44, 7);
+        std::cout << " +================+";
+        set_password();
         return;
     }
     else
     {
-
-        char count = '0';
-        fpass >> password;
-        fpass.close();
-
-        password = decrypt(password);
-        while (true)
-        {
-            enterPassW = input_password("|  ENTER PASSWORD  | ", false);
-
-            if (password == enterPassW)
-            {
-                system("color 02");
-                Sleep(1000);
-                system("cls");
-                notebook();
-                gotoxy(46, 6);
-                std::cout << "Change Password";
-                gotoxy(44, 7);
-                std::cout << " +================+";
-                set_password();
-                return;
-            }
-            else
-            {
-                system("color 0C");
-                ++count;
-                if (count == '3')
-                {
-                    showMessage("For security reasons please try again after sometime", "04", false);
-                    return;
-                }
-                gotoxy(45, 14);
-                std::cerr << "Password incorrect";
-                Sleep(1000);
-                gotoxy(44, 14);
-                std::cerr << "                       ";
-                continue;
-            }
-        }
+        return;
     }
 }
 void Privacy::security_Question(bool set)
@@ -528,8 +494,8 @@ void Privacy::security_Question(bool set)
         }
         else
         {
-            
-            showMessage("your favourite teacher name:  "+securityQ,"07",false);
+
+            showMessage("your favourite teacher name:  " + securityQ, "07", false);
             std::ofstream sq("files/Private/question.txt", std::ios::trunc);
             if (sq.is_open())
             {
@@ -541,45 +507,43 @@ void Privacy::security_Question(bool set)
     }
     else
     {
-        system("cls");
-        notebook();
-        gotoxy(46, 6);
-        std::cout << "Security Question";
-        gotoxy(44, 7);
-        std::cout << " +================+";
-        gotoxy(45, 11);
-        std::cout << " +================+";
-        gotoxy(45, 12);
-        std::cout << "|  ENTER PASSWORD  |";
-        gotoxy(45, 13);
-        std::cout << " +================+";
-        std::ifstream fpass("files/Private/password.txt");
-        if (fpass.is_open())
+        bool loginsuccess = login();
+        if (loginsuccess)
         {
-
-            fpass >> password;
-            fpass.close();
-
-            password = decrypt(password);
-
-            enterPassW = input_password("|  ENTER PASSWORD  | ", false);
-            if (password == enterPassW)
-            {
-                security_Question(true);
-                return;
-            }
-            else
-            {
-                showMessage("Password incorrect Please Try again", "04", false);
-                return;
-            }
+            security_Question(true);
+            return;
         }
-        fpass.close();
+        else
+        {
+            return;
+        }
     }
 }
-
+void change_name()
+{
+    std::ofstream fname("files/Private/name.txt", std::ios::trunc);
+    system("cls");
+    notebook();
+    gotoxy(50, 6);
+    std::cout << "Change Name";
+    gotoxy(49, 7);
+    std::cout << "+===========+";
+    gotoxy(30, 10);
+    std::cout << "Enter your name: ";
+    ShowConsoleCursor(true);
+    std::string name;
+    std::getline(std::cin, name);
+    fname << name;
+    gotoxy(45, 14);
+    std::cout << "Name changed successfully";
+    gotoxy(45, 16);
+    system("pause");
+    fname.close();
+}
 void main_menu()
 {
+    ShowConsoleCursor(true);
+    Privacy p;
     system("cls");
     system("color 07");
     notebook();
@@ -632,7 +596,6 @@ void main_menu()
         gotoxy(49, 17);
         std::cout << "Change Password";
         Sleep(100);
-        Privacy p;
         p.change_password();
         break;
     }
@@ -641,7 +604,6 @@ void main_menu()
         gotoxy(49, 17);
         std::cout << "change security question";
         Sleep(100);
-        Privacy p;
         p.security_Question(false);
         break;
     }
@@ -650,10 +612,7 @@ void main_menu()
     {
         gotoxy(49, 17);
         std::cout << "Quote menu";
-        // quotes *a = new quotes();
-        // a->quote_menu();
-        // delete a;
-        // Sleep(100);
+
         break;
     }
 
@@ -661,9 +620,7 @@ void main_menu()
     {
         gotoxy(49, 17);
         std::cout << "Change Name";
-        // change_name();
-        // Sleep(100);
-        // return main_menu();
+        change_name();
         break;
     }
     case '7':
@@ -679,5 +636,6 @@ void main_menu()
     default:
         break;
     }
+
     return main_menu();
 }
