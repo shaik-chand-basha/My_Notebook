@@ -23,14 +23,14 @@ void notebook();
 void welcome();
 void change_name();
 void main_menu();
-std::vector<std::string> randomQuote;                                                 //threee varible for manipulating quotes globally
+std::vector<std::string> randomQuote; // threee varible for manipulating quotes globally
 std::string oneQuote;
 bool quoteMode;
 
 class IncryptDecrypt
 {
 private:
-    int secretkey[18] = {21, 13, 8, 5, 3, 2, 1, 1, 0, 2, 3, 5, 7, 11, 13, 17, 19};   //secret key to incrypt and decrypt
+    int secretkey[18] = {21, 13, 8, 5, 3, 2, 1, 1, 0, 2, 3, 5, 7, 11, 13, 17, 19}; // secret key to incrypt and decrypt
 
 public:
     std::string incrypt(std::string);
@@ -74,14 +74,14 @@ int main()
             showCursor(false);
             welcome();
             showCursor(true);
-            std::ifstream fquotemode("files/Quotes/quotemode.txt");                      //get quote mode because in notebook 
-            if (fquotemode.is_open())                                                    //for random quote quote mode need to be true
+            std::ifstream fquotemode("notebook$$files/Quotes/quotemode.txt"); // get quote mode because in notebook
+            if (fquotemode.is_open())                                         // for random quote quote mode need to be true
             {
-                fquotemode >> quoteMode;                                    
+                fquotemode >> quoteMode;
             }
             fquotemode.close();
             Quotes a;
-            a.readQuotes();                                                                //loading quotes
+            a.readQuotes(); // loading quotes
             main_menu();
         }
         else
@@ -90,24 +90,24 @@ int main()
         }
     }
 }
-void gotoxy(int x, int y)                                                                   //for setting cursor position on console
+void gotoxy(int x, int y) // for setting cursor position on console
 {
     COORD pos;
     pos.X = x;
     pos.Y = y;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
-void showCursor(bool visibility)                                                           //to show or hide cursor
+void showCursor(bool visibility) // to show or hide cursor
 {
     HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
 
     CONSOLE_CURSOR_INFO cursorInfo;
 
     GetConsoleCursorInfo(out, &cursorInfo);
-    cursorInfo.bVisible = visibility;                                                       //true to show | false to hide cursor
+    cursorInfo.bVisible = visibility; // true to show | false to hide cursor
     SetConsoleCursorInfo(out, &cursorInfo);
 }
-void erasePrint(int x1, int x2, int y1, int y2)                                            //erase from one cordinate to another cordinate
+void erasePrint(int x1, int x2, int y1, int y2) // erase from one cordinate to another cordinate
 {
     for (int i = y1; i <= y2; i++)
     {
@@ -118,7 +118,7 @@ void erasePrint(int x1, int x2, int y1, int y2)                                 
         }
     }
 }
-bool showMessage(std::string msg, std::string colorcode, bool option)                     //showing some message and taking yes or no
+bool showMessage(std::string msg, std::string colorcode, bool option) // showing some message and taking yes or no
 {
     system("cls");
     gotoxy(50, 10);
@@ -159,13 +159,13 @@ bool showMessage(std::string msg, std::string colorcode, bool option)           
     system("color 07");
     return false;
 }
-void notebook()                                                                                 // display on top of page 
+void notebook() // display on top of page
 {
     gotoxy(49, 1);
     std::cout << "MY NOTEBOOK";
     std::string displayQuote = "   ";
     int n;
-    if (quoteMode)                                                                              // selecting random quote
+    if (quoteMode) // selecting random quote
     {
         srand(time(0));
         if (randomQuote.size() > 0)
@@ -178,9 +178,9 @@ void notebook()                                                                 
     {
         displayQuote = oneQuote;
     }
-    int i = displayQuote.length();  
+    int i = displayQuote.length();
 
-    i = 50 - (int)((i - 10) / 2);                                                                 // based on length quote position shift
+    i = 50 - (int)((i - 10) / 2); // based on length quote position shift
     if (i >= 100)
         i = 0;
     gotoxy(i, 3);
@@ -189,15 +189,15 @@ void notebook()                                                                 
     gotoxy(80, 7);
     std::cout << ctime(&now);
 }
-void welcome()                                                                                  // welcome message if name entered it will show
+void welcome() // welcome message if name entered it will show
 {
     system("cls");
     system("color 07");
-    std::ifstream fname("files/Private/name.txt");
+    std::ifstream fname("notebook$$files/Private/name.txt");
     if (!fname.is_open())
     {
         fname.close();
-        std::ofstream foname("files/Private/name.txt");
+        std::ofstream foname("notebook$$files/Private/name.txt");
         foname.close();
         return welcome();
     }
@@ -209,12 +209,12 @@ void welcome()                                                                  
         {
             showCursor(true);
             gotoxy(45, 10);
-            std::cout << "Enter your name: ";                                                       //if name not entered or not set here take
+            std::cout << "Enter your name: "; // if name not entered or not set here take
             std::getline(std::cin, name);
             fname.close();
         }
 
-        std::ofstream fname("files/Private/name.txt", std::ios::trunc);
+        std::ofstream fname("notebook$$files/Private/name.txt", std::ios::trunc);
         system("cls");
         gotoxy(50, 12);
         std::cout << "welcome " << name;
@@ -223,30 +223,30 @@ void welcome()                                                                  
         Sleep(1000);
     }
 }
-bool checkfile()                                                                            //it will check file folder exist or not
+bool checkfile() // it will check file folder exist or not
 {
-    struct stat buffer;                                                                    // if file folder not existed then it will create
+    struct stat buffer; // if file folder not existed then it will create
     char s[] = "files";
     if (stat(s, &buffer) == -1)
     {
         mkdir("files");
-        mkdir("files/Notes");
-        mkdir("files/Notes/notes");
-        mkdir("files/Private");
-        mkdir("files/Quotes");
-        mkdir("files/Tasks");
-        mkdir("files/Tasks/files");
-        mkdir("files/Tasks/_$lastfile$_");
+        mkdir("notebook$$files/Notes");
+        mkdir("notebook$$files/Notes/notes");
+        mkdir("notebook$$files/Private");
+        mkdir("notebook$$files/Quotes");
+        mkdir("notebook$$files/Tasks");
+        mkdir("notebook$$files/Tasks/files");
+        mkdir("notebook$$files/Tasks/_$lastfile$_");
 
-        std::ofstream ffile("files/Private/name.txt");
-        std::ofstream ffile1("files/Private/password.txt");
-        std::ofstream ffile2("files/Quotes/onequote.txt");
-        std::ofstream ffile3("files/Quotes/quotemode.txt");
-        std::ofstream ffile4("files/Quotes/quotes.txt");
-        std::ofstream ffile5("files/Tasks/_$lastfile$_/lastopened.txt");
-        std::ofstream ffile6("files/Notes/recents.note");
-        std::ofstream ffile7("files/Close-Window-To-Continue.txt");
-        std::ofstream ffile8("files/Private/question.txt");
+        std::ofstream ffile("notebook$$files/Private/name.txt");
+        std::ofstream ffile1("notebook$$files/Private/password.txt");
+        std::ofstream ffile2("notebook$$files/Quotes/onequote.txt");
+        std::ofstream ffile3("notebook$$files/Quotes/quotemode.txt");
+        std::ofstream ffile4("notebook$$files/Quotes/quotes.txt");
+        std::ofstream ffile5("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
+        std::ofstream ffile6("notebook$$files/Notes/recents.note");
+        std::ofstream ffile7("notebook$$files/Close-Window-To-Continue.txt");
+        std::ofstream ffile8("notebook$$files/Private/question.txt");
         ffile.close();
         ffile1.close();
         ffile2.close();
@@ -260,7 +260,7 @@ bool checkfile()                                                                
     }
     return true;
 }
-std::string IncryptDecrypt::incrypt(std::string incryptTemp)
+std::string IncryptDecrypt::incrypt(std::string incryptTemp) // incrypt the string and return incrypted string
 {
     int i;
     int k;
@@ -278,7 +278,7 @@ std::string IncryptDecrypt::incrypt(std::string incryptTemp)
     incrypted = str;
     return incrypted;
 }
-std::string IncryptDecrypt::decrypt(std::string decryptTemp)
+std::string IncryptDecrypt::decrypt(std::string decryptTemp) // decrypt the string and return decrypted string
 {
     int i;
     int k;
@@ -296,9 +296,9 @@ std::string IncryptDecrypt::decrypt(std::string decryptTemp)
     decrypted = str;
     return decrypted;
 }
-std::string Privacy::input_password(std::string display, bool showpass)
+std::string Privacy::input_password(std::string display, bool showpass) // take input password from the user
 {
-    system("color 07");
+    system("color 07"); // and return user entered password
     bool passEmpty = true;
     int i = 0;
     char passw[10];
@@ -332,7 +332,7 @@ std::string Privacy::input_password(std::string display, bool showpass)
                 i = 0;
                 passEmpty = true;
                 gotoxy(44, 12);
-                std::cout << " " << display;
+                std::cout << " " << display; // display here is placeholder sent along with function
             }
 
             goto here;
@@ -341,7 +341,7 @@ std::string Privacy::input_password(std::string display, bool showpass)
         {
             passw[i] = temp;
             if (showpass)
-                std::cout << temp;
+                std::cout << temp; // show password or not sent along with funtion when calling
             else
                 std::cout << "X";
         }
@@ -351,7 +351,7 @@ std::string Privacy::input_password(std::string display, bool showpass)
     std::string s = passw;
     return s;
 }
-bool Privacy::login()
+bool Privacy::login() // ask user to enter password if password matched return true else true
 {
     showCursor(false);
     system("cls");
@@ -361,11 +361,11 @@ bool Privacy::login()
     std::cout << "|  ENTER PASSWORD  |";
     gotoxy(45, 13);
     std::cout << " +================+";
-    std::ifstream fpass("files/Private/password.txt");
+    std::ifstream fpass("notebook$$files/Private/password.txt");
     if (!fpass.is_open())
     {
 
-        std::ofstream fpass1("files/Private/password.txt", std::ios::app);
+        std::ofstream fpass1("notebook$$files/Private/password.txt", std::ios::app);
         fpass1.close();
         fpass.close();
         showMessage("System error!", "04", false);
@@ -410,11 +410,11 @@ bool Privacy::login()
                     {
                         char choice;
                         gotoxy(41, 14);
-                        std::cerr << "Did you forgot password(Y/N) ";
-                        choice = getch();
+                        std::cerr << "Did you forgot password(Y/N) "; // if user forgot password then ask to answer security question
+                        choice = getch();                             // set by user in main menu
                         if (choice == 'y' || choice == 'Y')
                         {
-                            std::ifstream securityQuestion("files/Private/question.txt");
+                            std::ifstream securityQuestion("notebook$$files/Private/question.txt");
                             std::string e_teachername;
                             std::string r_teachername;
                             if (securityQuestion.is_open())
@@ -439,8 +439,8 @@ bool Privacy::login()
                                 }
                             }
                         }
-                        showMessage("For security reasons please login after sometime", "04", false);
-                        system("color 07");
+                        showMessage("For security reasons please login after sometime", "04", false); // if user entered wrong answer to security
+                        system("color 07");                                                           // question it wil show and return false
                         return false;
                     }
                     gotoxy(45, 14);
@@ -459,7 +459,7 @@ bool Privacy::login()
     system("color 07");
     return true;
 }
-void Privacy::set_password()
+void Privacy::set_password() // set password
 {
     gotoxy(45, 11);
     std::cout << " +================+";
@@ -474,7 +474,7 @@ void Privacy::set_password()
     std::cout << "                                             ";
     gotoxy(45, 14);
     std::cout << "Your password is \'" << enterPassW << "\'";
-    std::ofstream fpass("files/Private/password.txt", std::ios::trunc);
+    std::ofstream fpass("notebook$$files/Private/password.txt", std::ios::trunc);
     if (fpass.is_open())
     {
         enterPassW = incrypt(enterPassW);
@@ -486,7 +486,7 @@ void Privacy::set_password()
     Sleep(1000);
     return;
 }
-void Privacy::change_password()
+void Privacy::change_password() // change password but first ask to enter login password
 {
     bool loginsuccess = login();
     if (loginsuccess)
@@ -507,9 +507,9 @@ void Privacy::change_password()
         return;
     }
 }
-void Privacy::security_Question(bool set)
+void Privacy::security_Question(bool set) // set security quetion or edit security question but when editing
 {
-    std::string securityQ;
+    std::string securityQ; // user required to enter password fails to return main menu
     system("cls");
     if (set)
     {
@@ -524,7 +524,7 @@ void Privacy::security_Question(bool set)
         {
 
             showMessage("your favourite teacher name:  " + securityQ, "07", false);
-            std::ofstream sq("files/Private/question.txt", std::ios::trunc);
+            std::ofstream sq("notebook$$files/Private/question.txt", std::ios::trunc);
             if (sq.is_open())
             {
                 securityQ = incrypt(securityQ);
@@ -547,9 +547,9 @@ void Privacy::security_Question(bool set)
         }
     }
 }
-void change_name()
+void change_name() // use may change their name without entering password
 {
-    std::ofstream fname("files/Private/name.txt", std::ios::trunc);
+    std::ofstream fname("notebook$$files/Private/name.txt", std::ios::trunc);
     system("cls");
     notebook();
     gotoxy(50, 6);
@@ -568,11 +568,11 @@ void change_name()
     system("pause");
     fname.close();
 }
-void Quotes::readQuotes()
+void Quotes::readQuotes() // read quotes
 {
-    std::ifstream fquote("files/Quotes/quotes.txt");
-    std::ifstream fquotemode("files/Quotes/quotemode.txt");
-    std::ifstream fonequote("files/Quotes/onequote.txt");
+    std::ifstream fquote("notebook$$files/Quotes/quotes.txt");
+    std::ifstream fquotemode("notebook$$files/Quotes/quotemode.txt");
+    std::ifstream fonequote("notebook$$files/Quotes/onequote.txt");
 
     if (!fquote.is_open() || !fquotemode.is_open() || !fonequote.is_open())
     {
@@ -582,12 +582,12 @@ void Quotes::readQuotes()
     {
         char mode;
         std::string tempquote;
-        fquotemode >> mode;
+        fquotemode >> mode; // get mode from file
         switch (mode)
         {
         case '1':
         {
-            std::getline(fonequote, tempquote);
+            std::getline(fonequote, tempquote); // mode 1 means user selected one quote to display
             if (tempquote.length() != 0)
             {
                 tempquote = decrypt(tempquote);
@@ -649,7 +649,7 @@ void Quotes::changeQuoteMode()
         case '1':
         {
 
-            std::ofstream fquotemode("files/Quotes/quotemode.txt", std::ios::trunc);
+            std::ofstream fquotemode("notebook$$files/Quotes/quotemode.txt", std::ios::trunc);
             std::string templine;
             fquotemode << "1";
             fquotemode.close();
@@ -668,7 +668,7 @@ void Quotes::changeQuoteMode()
                     system("pause");
                     continue;
                 }
-                std::ofstream fquote("files/Quotes/onequote.txt", std::ios::trunc);
+                std::ofstream fquote("notebook$$files/Quotes/onequote.txt", std::ios::trunc);
                 if (templine.length() != 0)
                 {
                     oneQuote = templine;
@@ -689,7 +689,7 @@ void Quotes::changeQuoteMode()
         }
         case '2':
         {
-            std::ofstream fquotemode("files/Quotes/quotemode.txt", std::ios::trunc);
+            std::ofstream fquotemode("notebook$$files/Quotes/quotemode.txt", std::ios::trunc);
             quoteMode = false;
             fquotemode << "1";
             selectchoice = false;
@@ -699,7 +699,7 @@ void Quotes::changeQuoteMode()
         }
         case '3':
         {
-            std::ofstream fquotemode("files/Quotes/quotemode.txt", std::ios::trunc);
+            std::ofstream fquotemode("notebook$$files/Quotes/quotemode.txt", std::ios::trunc);
             quoteMode = true;
             fquotemode << "2";
             selectchoice = false;
@@ -835,7 +835,7 @@ void Quotes::quote_viewMenu()
         }
     }
     std::string line;
-    std::ofstream fquote("files/Quotes/quotes.txt", std::ios::trunc);
+    std::ofstream fquote("notebook$$files/Quotes/quotes.txt", std::ios::trunc);
     if (!randomQuote.empty())
         for (int i = 0; i < randomQuote.size(); i++)
         {
@@ -850,7 +850,7 @@ void Quotes::quote_viewMenu()
 void Quotes::quote_menu()
 {
     {
-        std::ifstream fquote("files/Quotes/quotes.txt", std::ios::trunc);
+        std::ifstream fquote("notebook$$files/Quotes/quotes.txt", std::ios::trunc);
         if (fquote.is_open())
         {
             randomQuote.clear();

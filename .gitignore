@@ -1,4 +1,5 @@
 files
 .vscode
 temp*
-.exe
+*.exe
+notebook$$files
