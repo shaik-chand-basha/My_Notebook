@@ -16,6 +16,8 @@
 #include <cstdlib>
 void gotoxy(int, int);
 bool checkfile();
+int getNum(int, int);
+std::vector<std::string> getAllFileNames(std::string);
 void showCursor(bool);
 void erasePrint(int, int, int, int);
 bool showMessage(std::string, std::string, bool);
@@ -23,20 +25,22 @@ void notebook();
 void welcome();
 void change_name();
 void main_menu();
+bool cinused = false;
+std::string modifyname(std::string);
 std::vector<std::string> randomQuote; // threee varible for manipulating quotes globally
 std::string oneQuote;
 bool quoteMode;
 
-class IncryptDecrypt
+class EncryptDecrypt
 {
 private:
-    int secretkey[18] = {21, 13, 8, 5, 3, 2, 1, 1, 0, 2, 3, 5, 7, 11, 13, 17, 19}; // secret key to incrypt and decrypt
+    int secretkey[18] = {21, 13, 8, 5, 3, 2, 1, 1, 0, 2, 3, 5, 7, 11, 13, 17, 19}; // secret key to encrypt and decrypt
 
 public:
-    std::string incrypt(std::string);
+    std::string encrypt(std::string);
     std::string decrypt(std::string);
 };
-class Privacy : protected IncryptDecrypt
+class Privacy : protected EncryptDecrypt
 {
 private:
     std::string password;
@@ -49,7 +53,7 @@ public:
     void change_password();
     void security_Question(bool);
 };
-class Quotes : public IncryptDecrypt
+class Quotes : public EncryptDecrypt
 {
 public:
     void quote_menu();
@@ -57,38 +61,60 @@ public:
     void quote_viewMenu();
     void changeQuoteMode();
 };
+class Notes : public EncryptDecrypt
+{
+private:
+    std::string pageOpened;
+    std::string noteOpened;
+    std::string notespath = "notebook$$files/Notes/notes";
+
+public:
+    bool checkNotesExisted(std::string, std::string, bool, bool);
+    void notesMenu();
+    void addPage();
+    void loadPage();
+    void loadNotes(std::string, std::string);
+    void editNote();
+    bool writeNote(std::string, std::string, std::vector<std::string>);
+    std::vector<std::string> readNote(std::string, std::string);
+    std::vector<std::string> exchangeNote(std::string, std::string, bool, bool);
+    std::vector<std::string> recent(std::string, bool, bool);
+};
 int main()
 {
-    system("title MY NOTEBOOK");
-    if (!checkfile())
-    {
-        showMessage("Please Restart", "07", false);
-        exit(0);
-    }
-    else
-    {
-        Privacy p;
-        bool loginsuccess = p.login();
-        if (loginsuccess)
-        {
-            showCursor(false);
-            welcome();
-            showCursor(true);
-            std::ifstream fquotemode("notebook$$files/Quotes/quotemode.txt"); // get quote mode because in notebook
-            if (fquotemode.is_open())                                         // for random quote quote mode need to be true
-            {
-                fquotemode >> quoteMode;
-            }
-            fquotemode.close();
-            Quotes a;
-            a.readQuotes(); // loading quotes
-            main_menu();
-        }
-        else
-        {
-            exit(0);
-        }
-    }
+    Notes a;
+    a.notesMenu();
+   
+    // system("title MY NOTEBOOK");
+    // if (!checkfile())
+    // {
+    //     showMessage("Please Restart", "07", false);
+    //     exit(0);
+    // }
+    // else
+    // {
+    //     Privacy p;
+    //     bool loginsuccess = p.login();
+    //     if (loginsuccess)
+    //     {
+    //         showCursor(false);
+    //         welcome();
+    //         showCursor(true);
+    //         std::ifstream fquotemode("notebook$$files/Quotes/quotemode.txt"); // get quote mode because in notebook
+    //         if (fquotemode.is_open())                                         // for random quote quote mode need to be true
+    //         {
+    //             fquotemode >> quoteMode;
+    //         }
+    //         fquotemode.close();
+    //         Quotes a;
+    //         a.readQuotes(); // loading quotes
+    //         main_menu();
+    //     }
+    //     else
+    //     {
+    //         exit(0);
+    //     }
+    // }
 }
 void gotoxy(int x, int y) // for setting cursor position on console
 {
@@ -137,7 +163,7 @@ bool showMessage(std::string msg, std::string colorcode, bool option) // showing
     if (option)
     {
 
-        system("Do you want to continue(Y/N)");
+        std::cout << "Do you want to continue(Y/N)";
         while (true)
         {
             gotoxy(74, 12);
@@ -158,6 +184,18 @@ bool showMessage(std::string msg, std::string colorcode, bool option) // showing
         system("pause");
     system("color 07");
     return false;
+}
+std::string modifyname(std::string name)
+{
+    name = regex_replace(name, std::regex("^ +| +$"), "$1");
+    for (int i = 0; i < name.length(); i++)
+    {
+        if (name[i] == ' ')
+        {
+            name[i] = '-';
+        }
+    }
+    return name;
 }
 void notebook() // display on top of page
 {
@@ -210,6 +248,11 @@ void welcome() // welcome message if name entered it will show
             showCursor(true);
             gotoxy(45, 10);
             std::cout << "Enter your name: "; // if name not entered or not set here take
+            if (cinused)
+            {
+                std::cin.ignore();
+                cinused = false;
+            }
             std::getline(std::cin, name);
             fname.close();
         }
@@ -222,6 +265,42 @@ void welcome() // welcome message if name entered it will show
         fname.close();
         Sleep(1000);
     }
+}
+int getNum(int x, int y)
+{
+    char ch;
+    int n;
+    int sum = 0;
+    int i = 0;
+    while (true)
+    {
+        gotoxy(x + i, y);
+        ch = getch();
+        n = ch - '0';
+        if (ch == 13)
+            break;
+        if (ch == 8)
+        {
+            if (i <= 0)
+            {
+                i = 0;
+                continue;
+            }
+            std::cout << "\b"
+                      << " ";
+            sum = (sum-((sum%100)%10))/10;
+            i--;
+            continue;
+        }
+
+        if (n >= 0 && n <= 9)
+        {
+            sum = sum * 10 + n;
+            std::cout << ch;
+            i++;
+        }
+    }
+    return sum;
 }
 bool checkfile() // it will check file folder exist or not
 {
@@ -260,25 +339,49 @@ bool checkfile() // it will check file folder exist or not
     }
     return true;
 }
-std::string IncryptDecrypt::incrypt(std::string incryptTemp) // incrypt the string and return incrypted string
+std::vector<std::string> getAllFileNames(std::string path)
+{
+    struct dirent *d;
+    std::vector<std::string> allfilenames;
+    std::string temp;
+    char dir[path.length()];
+    std::strcpy(dir, path.c_str());
+    DIR *dr;
+    dr = opendir(dir);
+    if (dr != NULL)
+    {
+        for (d = readdir(dr); d != NULL; d = readdir(dr))
+        {
+            temp = d->d_name;
+            if (temp == "." || temp == "..")
+            {
+                continue;
+            }
+            allfilenames.push_back(temp);
+        }
+        closedir(dr);
+    }
+    return allfilenames;
+}
+std::string EncryptDecrypt::encrypt(std::string encryptTemp) // encrypt the string and return encrypted string
 {
     int i;
     int k;
     int key;
-    std::string incrypted;
-    char str[incryptTemp.length()];
-    std::strcpy(str, incryptTemp.c_str());
-    for (i = 0, k = 0; i < incryptTemp.length(); i++, k++)
+    std::string encrypted;
+    char str[encryptTemp.length()];
+    std::strcpy(str, encryptTemp.c_str());
+    for (i = 0, k = 0; i < encryptTemp.length(); i++, k++)
     {
         key = secretkey[k];
         str[i] += key;
         if (k == 16)
             k = 0;
     }
-    incrypted = str;
-    return incrypted;
+    encrypted = str;
+    return encrypted;
 }
-std::string IncryptDecrypt::decrypt(std::string decryptTemp) // decrypt the string and return decrypted string
+std::string EncryptDecrypt::decrypt(std::string decryptTemp) // decrypt the string and return decrypted string
 {
     int i;
     int k;
@@ -426,6 +529,11 @@ bool Privacy::login() // ask user to enter password if password matched return t
                                 gotoxy(34, 10);
                                 std::cout << "Enter your favourite teacher name: ";
                                 showCursor(true);
+                                if (cinused)
+                                {
+                                    std::cin.ignore();
+                                    cinused = false;
+                                }
                                 std::getline(std::cin, e_teachername);
                                 if (e_teachername == r_teachername)
                                 {
@@ -477,7 +585,7 @@ void Privacy::set_password() // set password
     std::ofstream fpass("notebook$$files/Private/password.txt", std::ios::trunc);
     if (fpass.is_open())
     {
-        enterPassW = incrypt(enterPassW);
+        enterPassW = encrypt(enterPassW);
         fpass << enterPassW;
         fpass.close();
     }
@@ -515,6 +623,11 @@ void Privacy::security_Question(bool set) // set security quetion or edit securi
     {
         gotoxy(20, 10);
         std::cout << "Enter your favourite teacher name:  ";
+        if (cinused)
+        {
+            std::cin.ignore();
+            cinused = false;
+        }
         std::getline(std::cin, securityQ);
         if (securityQ.length() == 0)
         {
@@ -527,7 +640,7 @@ void Privacy::security_Question(bool set) // set security quetion or edit securi
             std::ofstream sq("notebook$$files/Private/question.txt", std::ios::trunc);
             if (sq.is_open())
             {
-                securityQ = incrypt(securityQ);
+                securityQ = encrypt(securityQ);
                 sq << securityQ;
             }
             sq.close();
@@ -560,6 +673,11 @@ void change_name() // use may change their name without entering password
     std::cout << "Enter your name: ";
     showCursor(true);
     std::string name;
+    if (cinused)
+    {
+        std::cin.ignore();
+        cinused = false;
+    }
     std::getline(std::cin, name);
     fname << name;
     gotoxy(45, 14);
@@ -567,6 +685,884 @@ void change_name() // use may change their name without entering password
     gotoxy(45, 16);
     system("pause");
     fname.close();
+}
+bool Notes::checkNotesExisted(std::string pgname, std::string ntname, bool page, bool create)
+{
+
+    pgname = notespath + "/" + pgname;
+    struct stat buffer;
+    if (page)
+    {
+
+        char folder[pgname.length()];
+        std::strcpy(folder, pgname.c_str());
+        if (stat(folder, &buffer) == -1)
+        {
+            if (create)
+            {
+                mkdir(folder);
+            }
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+    else
+    {
+        ntname = pgname + "/" + ntname + ".note";
+        char noteFile[ntname.length()];
+        std::strcpy(noteFile, ntname.c_str());
+        if (stat(noteFile, &buffer) == -1)
+        {
+            if (create)
+            {
+                std::ofstream filecreate(ntname);
+                filecreate.close();
+            }
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+}
+void Notes::notesMenu()
+{
+
+    char choice;
+    short index;
+    std::vector<std::string> recentPages;
+    std::string recentfile;
+    std::system("cls");
+    std::system("color 07");
+    notebook();
+    gotoxy(50, 6);
+    std::cout << "Notes Menu";
+    gotoxy(49, 7);
+    std::cout << "+==========+";
+    gotoxy(48, 9);
+    std::cout << "1.Add Page";
+    gotoxy(48, 10);
+    std::cout << "2.View Pages";
+    gotoxy(48, 11);
+    std::cout << "3.Return main menu";
+    gotoxy(48, 12);
+    std::cout << "4.Exit";
+    gotoxy(30, 14);
+    std::cout << "Select your option: ";
+
+    recentPages = recent("-1", false, false);
+    gotoxy(0, 0);
+    gotoxy(40, 16);
+    std::cout << "(press  a-" << (char)(recentPages.size() + 96) << " to open recent files)";
+choiceselect:
+    gotoxy(52, 14);
+    choice = getch();
+    index = (short)choice - 97;
+    if (index >= 0 && index < recentPages.size())
+    {
+        recentfile = recentPages.at(index);
+        std::string dir = notespath + "/" + recentfile;
+        char folder[dir.length()];
+        std::strcpy(folder, dir.c_str());
+        struct stat buffer;
+        if (stat(folder, &buffer) != -1)
+        {
+
+            pageOpened = recentfile;
+            loadPage();
+            return notesMenu();
+        }
+    }
+    switch (choice)
+    {
+    case '1':
+        std::cout << "add page";
+        addPage();
+        break;
+    case '2':
+        std::cout << "view page";
+        // viewPage();
+        break;
+
+    case '3':
+    {
+        std::cout << "Return main menu";
+        return main_menu();
+        break;
+    }
+    case '4':
+    {
+        std::cout << " Do you want to exit(Y/N)";
+        char exitchoice;
+        exitchoice = getch();
+        if (exitchoice == 'n' || exitchoice == 'N')
+            return notesMenu();
+        else
+            exit(0);
+        break;
+    }
+    default:
+        goto choiceselect;
+    }
+
+    return notesMenu();
+}
+bool Notes::writeNote(std::string pgname, std::string ntname, std::vector<std::string> writing)
+{
+    ntname = notespath + "/" + pgname + "/" + ntname + ".note";
+    std::ofstream filewriting(ntname);
+    std::string tempNotes;
+    if (filewriting.is_open())
+    {
+        for (int i = 0; i < writing.size(); i++)
+        {
+            tempNotes = writing.at(i);
+            tempNotes = encrypt(tempNotes);
+            filewriting << tempNotes << std::endl;
+        }
+        filewriting.close();
+        return true;
+    }
+    else
+    {
+        filewriting.close();
+        return false;
+    }
+}
+std::vector<std::string> Notes::readNote(std::string pgname, std::string ntname)
+{
+    ntname = notespath + "/" + pgname + "/" + ntname + ".note";
+    std::string tempNotes;
+    std::vector<std::string> reading;
+    std::ifstream ffile(ntname);
+    if (ffile.is_open())
+    {
+        while (!ffile.eof())
+        {
+            std::getline(ffile, tempNotes);
+            tempNotes = decrypt(tempNotes);
+            reading.push_back(tempNotes);
+        }
+    }
+    ffile.close();
+    return reading;
+}
+std::vector<std::string> Notes::exchangeNote(std::string pgname, std::string ntname, bool reading, bool edit)
+{
+
+    std::string tempNotes;
+    std::vector<std::string> readnotes;
+    std::string notecopy = ntname;
+    ntname = notespath + "/" + pgname + "/" + ntname + ".note";
+    if (reading)
+    {
+        std::ifstream fileread(ntname);
+        if (fileread.is_open())
+        {
+            std::ofstream notepadfile("notebook$$files/Close-Window-To-Continue.txt");
+            while (!fileread.eof())
+            {
+                std::getline(fileread, tempNotes);
+                tempNotes = decrypt(tempNotes);
+                notepadfile << tempNotes << std::endl;
+            }
+            fileread.close();
+            notepadfile.close();
+            std::system("notepad \"notebook$$files/Close-Window-To-Continue.txt\"");
+            if (edit)
+            {
+                return exchangeNote(pgname, notecopy, false, true);
+            }
+        }
+    }
+    else
+    {
+        if (!edit)
+            std::system("notepad \"notebook$$files/Close-Window-To-Continue.txt\"");
+        std::ifstream reader("notebook$$files/Close-Window-To-Continue.txt");
+        if (reader.is_open())
+        {
+
+            while (!reader.eof())
+            {
+                std::getline(reader, tempNotes);
+                readnotes.push_back(tempNotes);
+            }
+        }
+        reader.close();
+        writeNote(pgname, notecopy, readnotes);
+        // std::ofstream writing(ntname);
+        // if (writing.is_open())
+        //     for (int i = 0; i < readnotes.size(); i++)
+        //     {
+        //         tempNotes = readnotes.at(i);
+        //         tempNotes = encrypt(tempNotes);
+        //         writing << tempNotes << std::endl;
+        //     }
+        // writing.close();
+    }
+    std::ofstream clearfile("notebook$$files/Close-Window-To-Continue.txt", std::ios::trunc);
+    clearfile.close();
+    return readnotes;
+}
+void Notes::loadNotes(std::string pgname, std::string ntname)
+{
+    std::system("cls");
+    std::vector<std::string> fileNote;
+    gotoxy(1, 4);
+    std::cout << "+==================================================================================================+";
+    gotoxy(1, 5);
+    std::cout << "                                      " << ntname << "                                            ";
+    gotoxy(1, 6);
+    std::cout << "+==================================================================================================+";
+    gotoxy(50, 3);
+    std::cout << "(Press R to return)";
+    fileNote = readNote(pgname, ntname);
+    gotoxy(1, 8);
+    for (int i = 0; i < fileNote.size(); i++)
+    {
+        std::cout << fileNote.at(i) << std::endl;
+    }
+    char choice;
+    gotoxy(0, 0);
+    do
+    {
+        choice = getch();
+    } while (choice != 'R' || choice != 'r');
+}
+std::vector<std::string> Notes::recent(std::string filename, bool write, bool deleterecent)
+{
+    std::vector<std::string> readrecents;
+    std::string temp;
+    bool checkFile = false;
+    std::fstream ffile("notebook$$files/Notes/recents.note");
+    if (ffile.is_open())
+    {
+        int i = 0;
+        while (!ffile.eof())
+        {
+            std::getline(ffile, temp);
+            if (temp.length() > 0)
+            {
+                if (filename == temp)
+                {
+                    checkFile = true;
+                }
+                else
+                {
+                    readrecents.push_back(temp);
+                }
+                i++;
+                if (i == 10)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (write)
+        {
+            ffile.flush();
+            if (!deleterecent)
+                ffile << filename << std::endl;
+            for (int j = 0; j < readrecents.size() && j < 9; j++)
+            {
+                temp = readrecents.at(j);
+
+                ffile << temp << std::endl;
+            }
+        }
+
+        else
+        {
+
+            gotoxy(1, 22);
+            std::cout << "+==================================================================================================+";
+            gotoxy(1, 23);
+            std::cout << "                                         Recent Pages                                               ";
+            gotoxy(1, 24);
+            std::cout << "+==================================================================================================+";
+
+            for (int i = 0; i < readrecents.size() && i < 10; i++)
+            {
+                gotoxy(5, 26 + i);
+                std::cout << char(i + 97) << ". " << readrecents.at(i);
+            }
+        }
+    }
+    ffile.close();
+    return readrecents;
+}
+void Notes::loadPage()
+{
+    if (pageOpened.length() != 0)
+    {
+        char choice;
+        std::vector<std::string> filesIn;
+        std::vector<std::string> filesInCopy;
+        std::string temp;
+        std::system("cls");
+        std::system("color 07");
+        notebook();
+        gotoxy(50, 6);
+        std::cout << "Page Menu";
+        gotoxy(49, 7);
+        std::cout << "==========";
+        gotoxy(28, 10);
+        std::cout << "1.Add Note";
+        gotoxy(28, 11);
+        std::cout << "2.Read Note";
+        gotoxy(28, 12);
+        std::cout << "3.Edit Note";
+        gotoxy(28, 13);
+        std::cout << "4.Rename Note";
+        gotoxy(28, 14);
+        std::cout << "5.Delete Note";
+        gotoxy(58, 10);
+        std::cout << "6.Rename Page";
+        gotoxy(58, 11);
+        std::cout << "7.Delete Page";
+        gotoxy(58, 12);
+        std::cout << "8.Deep Search";
+        gotoxy(58, 13);
+        std::cout << "9.Return Pagemenu";
+        gotoxy(30, 15);
+        std::cout << "Select your option: ";
+        filesInCopy = getAllFileNames(notespath + "/" + pageOpened);
+        for (int i = 0; i < filesInCopy.size(); i++)
+        {
+            temp = filesInCopy.at(i);
+            temp = temp.substr(0, temp.length() - 5);
+            filesIn.push_back(temp);
+        }
+        gotoxy(1, 20);
+        std::cout << "+==================================================================================================+";
+        gotoxy(1, 21);
+        std::cout << "                                       " << pageOpened << "                                               ";
+        gotoxy(1, 22);
+        std::cout << "+==================================================================================================+";
+        for (int i = 0; i < filesIn.size(); i++)
+        {
+            gotoxy(4, 24 + i);
+            std::cout << i + 1 << ".";
+            gotoxy(6, 24 + i);
+            std::cout << filesIn.at(i);
+        }
+        gotoxy(0, 0);
+        gotoxy(51, 15);
+        choice = getch();
+        erasePrint(0, 78, 10, 15);
+        switch (choice)
+        {
+        case '1':
+        {
+            addPage();
+            break;
+        }
+        case '2':
+        {
+            int n;
+            gotoxy(20, 12);
+            std::cout << "Enter Note number to open: ";
+            std::cin >> n;
+            cinused = true;
+            if (n > 0 && n < filesIn.size())
+            {
+
+                std::string ntname = filesIn.at(n - 1);
+                gotoxy(38, 13);
+                std::cout << "Note name: " << ntname;
+                gotoxy(20, 14);
+                std::cout << "Do you want to open in notepad(Y/N)";
+                char ch = getch();
+                if (ch == 'Y' || ch == 'y')
+                {
+                    exchangeNote(pageOpened, ntname, true, false);
+                }
+                else
+                {
+                    loadNotes(pageOpened, ntname);
+                }
+            }
+            else
+            {
+                showMessage("Note not found", "04", false);
+            }
+            break;
+        }
+        case '3':
+        {
+            gotoxy(20, 12);
+            std::cout << "Enter Note number to edit: ";
+            int n;
+            std::cin >> n;
+            cinused = true;
+            if (n > 0 && n < filesIn.size())
+            {
+
+                std::string ntname = filesIn.at(n - 1);
+                gotoxy(38, 13);
+                std::cout << "Note name: " << ntname;
+                exchangeNote(pageOpened, ntname, true, true);
+            }
+            else
+            {
+                showMessage("Note not found", "04", false);
+            }
+            break;
+        }
+        case '4':
+        {
+            gotoxy(20, 12);
+            std::cout << "Enter Note number to rename: ";
+            int n;
+            std::cin >> n;
+            cinused = true;
+            if (n > 0 && n < filesIn.size())
+            {
+                std::string old_name = filesIn.at(n - 1);
+                std::string new_name;
+                gotoxy(38, 13);
+                std::cout << "Note name: " << old_name;
+                gotoxy(33, 14);
+                std::cout << "Enter new Name:";
+
+                while (true)
+                {
+                    gotoxy(50, 14);
+                    if (cinused)
+                    {
+                        std::cin.ignore();
+                        cinused = false;
+                    }
+                    std::getline(std::cin, new_name);
+                    new_name = modifyname(new_name);
+                    if (new_name.length() < 3 || new_name.length() > 30)
+                    {
+                        gotoxy(30, 15);
+                        std::cout << "Name should be more than 2 characters and less than 30 characters";
+                        Sleep(300);
+                        erasePrint(47, 100, 14, 14);
+                        erasePrint(27, 100, 15, 15);
+                        continue;
+                    }
+                    if (checkNotesExisted(pageOpened, new_name, false, false))
+                    {
+                        gotoxy(40, 15);
+                        std::cout << "note already existed try another name";
+                        Sleep(300);
+                        erasePrint(47, 100, 14, 14);
+                        erasePrint(38, 100, 15, 15);
+                        continue;
+                    }
+                    else
+                    {
+                        std::string oldname = notespath + "/" + pageOpened + "/" + old_name + ".note";
+                        std::string newname = notespath + "/" + pageOpened + "/" + new_name + ".note";
+
+                        char old[oldname.length()];
+                        char renamesto[newname.length()];
+                        std::strcpy(old, oldname.c_str());
+                        std::strcpy(renamesto, newname.c_str());
+                        if (rename(old, renamesto) == 0)
+                        {
+
+                            gotoxy(48, 15);
+                            std::cout << "renamed note successfully";
+                            Sleep(300);
+                            break;
+                        }
+                        else
+                        {
+                            showMessage("System error", "04", false);
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                showMessage("Note not found", "04", false);
+            }
+
+            break;
+        }
+        case '5':
+        {
+            gotoxy(20, 12);
+            std::cout << "Enter Note number to delete: ";
+            int n;
+            std::cin >> n;
+            cinused = true;
+            if (n > 0 && n < filesIn.size())
+            {
+                std::string ntname = filesIn.at(n - 1);
+                gotoxy(38, 13);
+                std::cout << "Note name: " << ntname;
+                gotoxy(20, 14);
+                std::string pathC = notespath + "/" + pageOpened + "/" + ntname + ".note";
+                char path[pathC.length()];
+                std::strcpy(path, pathC.c_str());
+                if (remove(path) == 0)
+                {
+                    std::system("cls");
+                    std::cout << "Note deleted Successfully";
+                }
+                else
+                {
+                    showMessage("System error", "04", false);
+                }
+            }
+            else
+            {
+                showMessage("Note not found", "04", false);
+            }
+            break;
+        }
+        case '6':
+        {
+            std::string pg_newname;
+            gotoxy(40, 12);
+            std::cout << "Page name: " << pageOpened;
+            gotoxy(35, 13);
+            std::cout << "Enter new Name:";
+            while (true)
+            {
+                if (cinused)
+                {
+                    std::cin.ignore();
+                    cinused = false;
+                }
+                gotoxy(50, 13);
+                std::getline(std::cin, pg_newname);
+                pg_newname = modifyname(pg_newname);
+                if (pg_newname.length() < 3 || pg_newname.length() > 30)
+                {
+                    gotoxy(30, 15);
+                    std::cout << "Name should be more than 2 characters and less than 30 characters";
+                    Sleep(300);
+                    erasePrint(47, 100, 14, 14);
+                    erasePrint(27, 100, 15, 15);
+                    continue;
+                }
+
+                if (checkNotesExisted(pageOpened, pg_newname, false, false))
+                {
+                    gotoxy(40, 15);
+                    std::cout << "note already existed try another name";
+                    Sleep(300);
+                    erasePrint(50, 100, 13, 14);
+                    erasePrint(38, 100, 15, 15);
+                    continue;
+                }
+                else
+                {
+                    std::string oldname = notespath + "/" + pageOpened;
+                    std::string newname = notespath + "/" + pg_newname;
+
+                    char old[oldname.length()];
+                    char renamesto[newname.length()];
+                    std::strcpy(old, oldname.c_str());
+                    std::strcpy(renamesto, newname.c_str());
+                    if (rename(old, renamesto) == 0)
+                    {
+                        recent(pageOpened, true, true);
+                        recent(pg_newname, true, false);
+                        gotoxy(48, 14);
+                        std::cout << "renamed page successfully";
+                        pageOpened = pg_newname;
+                        Sleep(300);
+                        break;
+                    }
+                    else
+                    {
+                        showMessage("System error", "04", false);
+                        break;
+                    }
+                }
+            }
+
+            break;
+        }
+        case '7':
+        {
+            if (showMessage("This will delete Page permanantly", "04", true))
+            {
+                if (checkNotesExisted(pageOpened, "-1", true, false))
+                {
+                    std::string pathC = "rmdir /s /q notebook$$files\\Notes\\notes\\" + pageOpened;
+                    char path[pathC.length()];
+                    std::strcpy(path, pathC.c_str());
+                    std::system(path);
+                    recent(pageOpened, true, true);
+                    pageOpened = "";
+                    // std::cin.ignore();
+                    return;
+                }
+                else
+                {
+                    return loadPage();
+                }
+                // rmdir(path)==0
+            }
+            else
+            {
+                return loadPage();
+            }
+            break;
+        }
+        case '8':
+        {
+            break;
+        }
+        case '9':
+        {
+            pageOpened = "";
+            return notesMenu();
+
+            break;
+        }
+        default:
+        {
+            break;
+        }
+        }
+    }
+    return loadPage();
+}
+void Notes::addPage()
+{
+    system("cls");
+    notebook();
+    gotoxy(50, 6);
+    std::cout << "Add Page";
+    gotoxy(49, 7);
+    std::cout << "+=========+";
+    char choice;
+    std::vector<std::string> readnotes;
+    std::vector<std::string> pagenames;
+    std::vector<std::string> notenames;
+    std::string tempNotes, pagename, notename;
+    bool checkdirect = false;
+    std::system("color 07");
+
+    if (pageOpened.length() != 0)
+    {
+        gotoxy(2, 10);
+        std::cout << "Enter Page Name: ";
+        std::cout << pageOpened;
+        pagename = pageOpened;
+    }
+    else
+    {
+        pagenames = getAllFileNames(notespath);
+        for (int i = 0; i < pagenames.size(); i++)
+        {
+            gotoxy(100, 12 + i);
+            std::cout << "| " << pagenames.at(i);
+        }
+        while (true)
+        {
+            gotoxy(2, 10);
+            std::cout << "Enter Page Name: ";
+            gotoxy(20, 10);
+            if (cinused)
+            {
+
+                std::cin.ignore();
+                cinused = false;
+            }
+            std::getline(std::cin, pagename);
+            if (pagename.length() < 3 || pagename.length() > 30)
+            {
+                gotoxy(2, 12);
+                std::cout << "Name should be more than 2 characters and less than 30 characters";
+                getch();
+                erasePrint(0, 100, 10, 12);
+                continue;
+            }
+            pagename = modifyname(pagename);
+
+            std::string tempregex;
+
+            for (int i = 0; i < pagenames.size(); i++)
+            {
+                tempregex = pagenames.at(i);
+                if (pagename.find(tempregex) != -1)
+                {
+                    std::regex finder("^" + tempregex + ".$");
+                    if (regex_match(pagename, finder))
+                    {
+                        pagename = pagename + "_";
+                    }
+                }
+            }
+
+            checkdirect = checkNotesExisted(pagename, "-1", true, true);
+
+            if (checkdirect)
+            {
+
+                notenames = getAllFileNames(notespath + "/" + pagename);
+
+                if (notenames.size() == 0)
+                {
+
+                    break;
+                }
+                else
+                {
+                    gotoxy(2, 11);
+                    std::cout << "Page already exist do you want to add Note to this page(Y/N/R) ";
+                    choice = getch();
+                    if (choice == 'y' || choice == 'Y')
+                    {
+                        erasePrint(0, 100, 11, 11);
+                        break;
+                    }
+                    else if (choice == 'R' || choice == 'r')
+                    {
+                        pageOpened = "";
+                        return;
+                        break;
+                    }
+                    else
+                    {
+                        erasePrint(0, 100, 10, 12);
+                        continue;
+                    }
+                }
+            }
+            else
+            {
+
+                break;
+            }
+        }
+    }
+    erasePrint(90, 150, 12, 12 + pagenames.size());
+    if (checkdirect)
+    {
+        for (int i = 0; i < notenames.size(); i++)
+        {
+            gotoxy(100, 12 + i);
+            std::cout << "| " << notenames.at(i);
+        }
+    }
+
+    while (true)
+    {
+
+        gotoxy(2, 11);
+        std::cout << "Enter Note Name: ";
+        {
+            // if (cinused)
+            // {
+            //     std::cin.ignore();
+            //     cinused = false;
+            // }
+            std::getline(std::cin, notename);
+            notename = modifyname(notename);
+            if (notename.length() < 3 || notename.length() > 30)
+            {
+
+                gotoxy(2, 12);
+                std::cout << "Name should be more than 2 characters and less than 30 characters";
+                getch();
+                erasePrint(0, 100, 11, 12);
+                continue;
+            }
+            if (checkNotesExisted(pagename, notename, false, true))
+            {
+                gotoxy(2, 12);
+                std::cout << "Note already exist do you want to Edit note(Y/N) ";
+                char modifychoice;
+                modifychoice = getch();
+                if (modifychoice == 'y' || modifychoice == 'Y')
+                {
+                    erasePrint(0, 100, 12, 12);
+                    readnotes = exchangeNote(pagename, notename, true, true);
+                    goto comehere;
+                }
+                else
+                {
+                    erasePrint(0, 100, 11, 12);
+                    notename = "";
+                    continue;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    erasePrint(90, 150, 12, 12 + notenames.size());
+    pageOpened = pagename;
+    gotoxy(2, 12);
+    std::cout << notename << ": ";
+    gotoxy(2, 13);
+    std::cout << "Note:select notepad if you want better writing experience";
+    gotoxy(2, 14);
+    std::cout << "Do you want to open notepad for writing (Y/N)";
+    choice = getch();
+    erasePrint(0, 100, 13, 14);
+    gotoxy(2, 13);
+    if (choice == 'y' || choice == 'Y')
+    {
+        readnotes = exchangeNote(pagename, notename, false, false);
+        writeNote(pagename, notename, readnotes);
+    comehere:
+        for (int i = 0; i < readnotes.size(); i++)
+        {
+            gotoxy(2, 13 + i);
+
+            std::cout << readnotes.at(i) << std::endl;
+        }
+    }
+
+    else
+    {
+        std::string getlines, tempn;
+        gotoxy(2, 13);
+        std::cout << "Note:After entering text press \'Enter - CTRL+Z and then Enter\' to save";
+        std::cout << std::endl;
+        if (cinused)
+        {
+            std::cin.ignore();
+            cinused = false;
+        }
+        std::getline(std::cin, getlines, static_cast<char>(EOF));
+        readnotes.clear();
+        std::stringstream str(getlines);
+        while (std::getline(str, tempn, '\n'))
+        {
+            readnotes.push_back(tempn);
+        }
+
+        writeNote(pagename, notename, readnotes);
+    }
+
+    recent(pagename, true, false);
+    gotoxy(25, 21 + readnotes.size());
+    std::cout << "Do you want to add Another note to this page (Y/N) ";
+    choice = getch();
+    if (choice == 'y' || choice == 'Y')
+    {
+
+        // folderOpened = pagename;
+        readnotes.clear();
+        return addPage();
+    }
+    else
+    {
+        pageOpened = "";
+        return;
+    }
 }
 void Quotes::readQuotes() // read quotes
 {
@@ -658,6 +1654,11 @@ void Quotes::changeQuoteMode()
                 system("cls");
                 gotoxy(15, 10);
                 std::cout << "Enter Quote: ";
+                if (cinused)
+                {
+                    std::cin.ignore();
+                    cinused = false;
+                }
                 std::getline(std::cin, templine);
 
                 if (templine.length() > 150)
@@ -672,7 +1673,7 @@ void Quotes::changeQuoteMode()
                 if (templine.length() != 0)
                 {
                     oneQuote = templine;
-                    templine = incrypt(templine);
+                    templine = encrypt(templine);
                     fquote << templine;
                     quoteMode = false;
                 }
@@ -762,6 +1763,11 @@ void Quotes::quote_viewMenu()
                 gotoxy(15, 13);
                 std::cout << "Enter Quote: ";
                 std::string line;
+                if (cinused)
+                {
+                    std::cin.ignore();
+                    cinused = false;
+                }
                 std::getline(std::cin, line);
                 if (line.empty())
                 {
@@ -800,6 +1806,7 @@ void Quotes::quote_viewMenu()
                 std::cout << "Enter Quote number: ";
                 int n;
                 std::cin >> n;
+                cinused = true;
                 if (n <= 0 || n > randomQuote.size())
                 {
                     gotoxy(48, 14);
@@ -816,7 +1823,7 @@ void Quotes::quote_viewMenu()
                     gotoxy(48, 14);
                     std::cout << "Quote deleted successfully";
                 }
-                std::cin.ignore();
+
                 break;
             }
             return quote_viewMenu();
@@ -840,7 +1847,7 @@ void Quotes::quote_viewMenu()
         for (int i = 0; i < randomQuote.size(); i++)
         {
             line = randomQuote.at(i);
-            line = incrypt(line);
+            line = encrypt(line);
             fquote << line << std::endl;
         }
 
