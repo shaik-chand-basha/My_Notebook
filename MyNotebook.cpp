@@ -112,8 +112,7 @@ public:
 };
 int main()
 {
-   
-   
+
     system("title MY NOTEBOOK");
     if (!checkfile())
     {
@@ -444,11 +443,11 @@ std::string Privacy::input_password(std::string display, bool showpass) // take 
         if (passEmpty)
         {
             gotoxy(44, 12);
-            std::cout << "|                    |";
+            std::cout << "|                    |"; // if user type first character of password then open like animation
             passEmpty = false;
             gotoxy(52 + i, 12);
         }
-        if (temp == 13)
+        if (temp == 13) // if user enter before typing 10 characters then stop taking password
         {
 
             break;
@@ -579,7 +578,7 @@ bool Privacy::login() // ask user to enter password if password matched return t
                             }
                         }
                         showMessage("For security reasons please login after sometime", "04", false); // if user entered wrong answer to security
-                        system("color 07");                                                           // question it wil show and return false
+                        system("color 07");                                                           // question it will show and return false
                         return false;
                     }
                     gotoxy(45, 14);
@@ -625,7 +624,7 @@ void Privacy::set_password() // set password
     Sleep(1000);
     return;
 }
-void Privacy::change_password() // change password but first ask to enter login password
+void Privacy::change_password() // change password but first ask to enter login password if forgot enter security question if enabled
 {
     bool loginsuccess = login();
     if (loginsuccess)
@@ -638,7 +637,7 @@ void Privacy::change_password() // change password but first ask to enter login 
         std::cout << "Change Password";
         gotoxy(44, 7);
         std::cout << " +================+";
-        set_password();
+        set_password(); // if login success set password
         return;
     }
     else
@@ -648,8 +647,8 @@ void Privacy::change_password() // change password but first ask to enter login 
 }
 void Privacy::security_Question(bool set) // set security quetion or edit security question but when editing
 {
-    std::string securityQ; // user required to enter password fails to return main menu
-    std::string securityA; // user required to enter password fails to return main menu
+    std::string securityQ;
+    std::string securityA; // security answer to recover password
     system("cls");
     if (set)
     {
@@ -744,6 +743,9 @@ std::string searchBar(std::string title)
     erasePrint(0, 100, 9, 15);
     return keyword;
 }
+
+/*                                                        NOTES SECTION                                                             */
+
 bool Notes::checkNotesExisted(std::string pgname, std::string ntname, bool page, bool create)
 {
 
@@ -758,7 +760,7 @@ bool Notes::checkNotesExisted(std::string pgname, std::string ntname, bool page,
         {
             if (create)
             {
-                mkdir(folder);
+                mkdir(folder); // if page not existed then create it and return false;
             }
             return false;
         }
@@ -830,7 +832,7 @@ choiceselect:
         if (stat(folder, &buffer) != -1)
         {
 
-            pageOpened = recentfile;
+            pageOpened = recentfile; // if page existed in recent page then loadpage
             loadPage();
             return notesMenu();
         }
@@ -855,13 +857,11 @@ choiceselect:
     }
     case '4':
     {
-        std::cout << " Do you want to exit(Y/N)";
-        char exitchoice;
-        exitchoice = getch();
-        if (exitchoice == 'n' || exitchoice == 'N')
-            return notesMenu();
-        else
+        if (showMessage("You are going to exit from this application", "04", true))
+        {
+
             exit(0);
+        }
         break;
     }
     default:
@@ -922,7 +922,7 @@ std::vector<std::string> Notes::exchangeNote(std::string pgname, std::string ntn
         std::ifstream fileread(ntname);
         if (fileread.is_open())
         {
-            std::ofstream notepadfile("notebook$$files/Close-Window-To-Continue.txt");
+            std::ofstream notepadfile("notebook$$files/Close-Window-To-Continue.txt"); // close window file to exchange date between notepad and page
             while (!fileread.eof())
             {
                 std::getline(fileread, tempNotes);
@@ -931,7 +931,7 @@ std::vector<std::string> Notes::exchangeNote(std::string pgname, std::string ntn
             }
             fileread.close();
             notepadfile.close();
-            std::system("notepad \"notebook$$files/Close-Window-To-Continue.txt\"");
+            std::system("notepad \"notebook$$files/Close-Window-To-Continue.txt\""); // command to open file to read input if reading to show input
             if (edit)
             {
                 return exchangeNote(pgname, notecopy, false, true);
@@ -941,7 +941,7 @@ std::vector<std::string> Notes::exchangeNote(std::string pgname, std::string ntn
     else
     {
         if (!edit)
-            std::system("notepad \"notebook$$files/Close-Window-To-Continue.txt\"");
+            std::system("notepad \"notebook$$files/Close-Window-To-Continue.txt\""); // if not editing then open for writing in notepad to collect notes
         std::ifstream reader("notebook$$files/Close-Window-To-Continue.txt");
         if (reader.is_open())
         {
@@ -954,15 +954,6 @@ std::vector<std::string> Notes::exchangeNote(std::string pgname, std::string ntn
         }
         reader.close();
         writeNote(pgname, notecopy, readnotes);
-        // std::ofstream writing(ntname);
-        // if (writing.is_open())
-        //     for (int i = 0; i < readnotes.size(); i++)
-        //     {
-        //         tempNotes = readnotes.at(i);
-        //         tempNotes = encrypt(tempNotes);
-        //         writing << tempNotes << std::endl;
-        //     }
-        // writing.close();
     }
     std::ofstream clearfile("notebook$$files/Close-Window-To-Continue.txt", std::ios::trunc);
     clearfile.close();
@@ -971,7 +962,7 @@ std::vector<std::string> Notes::exchangeNote(std::string pgname, std::string ntn
 void Notes::loadNotes(std::string pgname, std::string ntname)
 {
 
-    if (!checkNotesExisted(pgname, ntname, false, false))
+    if (!checkNotesExisted(pgname, ntname, false, false)) // if page not existed then show message
     {
         showMessage("Notes either deleted or doesn't exist", "04", false);
         return;
@@ -985,7 +976,8 @@ void Notes::loadNotes(std::string pgname, std::string ntname)
     gotoxy(1, 6);
     std::cout << "+==================================================================================================+";
     gotoxy(50, 3);
-    fileNote = readNote(pgname, ntname);
+    std::cout << "(Press R to return)";
+    fileNote = readNote(pgname, ntname); // read all lines
     gotoxy(1, 8);
     for (int i = 0; i < fileNote.size(); i++)
     {
@@ -993,7 +985,10 @@ void Notes::loadNotes(std::string pgname, std::string ntname)
     }
     char choice;
     gotoxy(0, 0);
-    getch();
+    while (tolower(getch()) != 'r')
+    {
+        continue;
+    }
     system("cls");
 }
 std::vector<std::string> Notes::recent(std::string filename, bool write, bool deleterecent)
@@ -1030,7 +1025,7 @@ std::vector<std::string> Notes::recent(std::string filename, bool write, bool de
         {
             std::ofstream ffile1("notebook$$files/Notes/recents.note");
             if (!deleterecent)
-                ffile1 << filename << std::endl;
+                ffile1 << filename << std::endl; // if not delete page in recent list
             for (int j = 0; j < readrecents.size() && j < 9; j++)
             {
                 temp = readrecents.at(j);
@@ -1079,15 +1074,15 @@ void Notes::loadPage()
         std::cout << "Page Menu";
         gotoxy(49, 7);
         std::cout << "==========";
-        gotoxy(28, 10);
+        gotoxy(32, 10);
         std::cout << "1.Add Note";
-        gotoxy(28, 11);
+        gotoxy(32, 11);
         std::cout << "2.Read Note";
-        gotoxy(28, 12);
+        gotoxy(32, 12);
         std::cout << "3.Edit Note";
-        gotoxy(28, 13);
+        gotoxy(32, 13);
         std::cout << "4.Rename Note";
-        gotoxy(28, 14);
+        gotoxy(32, 14);
         std::cout << "5.Delete Note";
         gotoxy(58, 10);
         std::cout << "6.Rename Page";
@@ -1096,7 +1091,7 @@ void Notes::loadPage()
         gotoxy(58, 12);
         std::cout << "8.Deep Search";
         gotoxy(58, 13);
-        std::cout << "9.Return View Pages";
+        std::cout << "9.Return NotesMenu";
         gotoxy(30, 15);
         std::cout << "Select your option: ";
         gotoxy(50, 17);
@@ -1136,7 +1131,6 @@ void Notes::loadPage()
         case '1':
         {
             addPage();
-            // return loadPage();
             break;
         }
         case '2':
@@ -1145,7 +1139,7 @@ void Notes::loadPage()
             gotoxy(20, 12);
             std::cout << "Enter Note number to open: ";
             std::cin >> n;
-            /*  */ if (std::cin.fail())
+            if (std::cin.fail())
             {
                 std::cin.clear();
             }
@@ -1156,12 +1150,12 @@ void Notes::loadPage()
                 std::string ntname = filesIn.at(n - 1);
                 gotoxy(38, 13);
                 std::cout << "Note name: " << ntname;
-                gotoxy(20, 14);
+                gotoxy(45, 14);
                 std::cout << "Do you want to open in notepad(Y/N)";
                 char ch = getch();
                 if (ch == 'Y' || ch == 'y')
                 {
-                    exchangeNote(pageOpened, ntname, true, false);
+                    exchangeNote(pageOpened, ntname, true, false); // o
                 }
                 else
                 {
@@ -1204,8 +1198,12 @@ void Notes::loadPage()
             gotoxy(20, 12);
             std::cout << "Enter Note number to rename: ";
             int n;
+            std::cin >> n;
+            if (std::cin.fail())
+            {
+                std::cin.clear();
+            }
             std::getline(std::cin, garbage);
-
             if (n > 0 && n <= filesIn.size())
             {
                 std::string old_name = filesIn.at(n - 1);
@@ -1435,7 +1433,7 @@ void Notes::addPage()
         pagenames = getAllFileNames(notespath);
         for (int i = 0; i < pagenames.size(); i++)
         {
-            gotoxy(100, 12 + i);
+            gotoxy(80, 12 + i);
             std::cout << "| " << pagenames.at(i);
         }
         while (true)
@@ -1520,7 +1518,7 @@ void Notes::addPage()
 
         for (int i = 0; i < notenames.size(); i++)
         {
-            gotoxy(100, 12 + i);
+            gotoxy(80, 12 + i);
             std::cout << "| " << notenames.at(i);
         }
 
@@ -1644,6 +1642,22 @@ void Notes::viewPage()
     gotoxy(0, 0);
     gotoxy(60, 14);
     choice = getch();
+    short index = (short)choice - 97;
+    if (index >= 0 && index < readRecents.size())
+    {
+        std::string recentfile = readRecents.at(index);
+        std::string dir = notespath + "/" + recentfile;
+        char folder[dir.length()];
+        std::strcpy(folder, dir.c_str());
+        struct stat buffer;
+        if (stat(folder, &buffer) != -1)
+        {
+
+            pageOpened = recentfile; // if page existed in recent page then loadpage
+            loadPage();
+            return viewPage();
+        }
+    }
     switch (choice)
     {
     case '1':
@@ -1698,7 +1712,7 @@ void Notes::searchPage()
         gotoxy(49, 10);
         std::cout << "2.Open Page";
         gotoxy(49, 11);
-        std::cout << "3.Return view pages";
+        std::cout << "3.Return View pages";
         gotoxy(30, 13);
         std::cout << "Select your choice ";
 
@@ -1707,7 +1721,7 @@ void Notes::searchPage()
             gotoxy(1, 16);
             std::cout << "+==================================================================================================+";
             gotoxy(1, 17);
-            std::cout << "                    Search Results For " << keyword << "   -  " << pagenamesMatched.size() << "     ";
+            std::cout << "                    Search Results For " << keyword << "   -  " << pagenamesMatched.size() << "                             ";
             gotoxy(1, 18);
             std::cout << "+==================================================================================================+";
 
@@ -1820,7 +1834,7 @@ void Notes::searchNote()
         gotoxy(49, 11);
         std::cout << "3.Open Note";
         gotoxy(49, 12);
-        std::cout << "4.Return view pages";
+        std::cout << "4.Return View pages";
         gotoxy(30, 14);
         std::cout << "Select your choice ";
 
@@ -1829,7 +1843,7 @@ void Notes::searchNote()
             gotoxy(1, 16);
             std::cout << "+==================================================================================================+";
             gotoxy(1, 17);
-            std::cout << "                    Search Results For " << keyword << "   -  " << pagenamesMatched.size() << "             ";
+            std::cout << "                    Search Results For " << keyword << "   -  " << pagenamesMatched.size() << "                       ";
             gotoxy(1, 18);
             std::cout << "+==================================================================================================+";
             for (int i = 0; i < pagenamesMatched.size(); i++)
@@ -1940,6 +1954,941 @@ void Notes::searchNote()
     }
     return searchNote();
 }
+
+/*                                         TASK PAGE SECTION                                                      */
+
+std::string TaskPage::getdate() // get current date as string
+{
+    std::string returndate;
+    time_t t = time(0);
+    tm *now = localtime(&t);
+
+    returndate = std::to_string(now->tm_mday) + "-" + std::to_string(now->tm_mon + 1) + "-" + std::to_string(now->tm_year + 1900);
+    return returndate;
+}
+void TaskPage::writeTask(std::string pagename)
+{
+    std::string pagepath = "notebook$$files/Tasks/files/" + pagename + ".task";
+    std::ofstream ffile(pagepath);
+    ffile.flush();
+    if (ffile.is_open())
+    {
+        pagedatemodified = getdate();
+        std::string writetask;
+        int i = 0;
+        ffile << pagedate << " " << getdate() << std::endl; // write created and last modified date of page on first line;
+        while (i < tasks.size())
+        {
+            writetask = tasks.at(i);
+            writetask = encrypt(writetask);
+            ffile << writetask + "`" << checkUncheck.at(i) << "`" << taskdate.at(i) << std::endl; // write task,checked or not and task checked date
+            i++;
+        }
+    }
+}
+void TaskPage::readTask(std::string pagename)
+{
+    std::string pagepath = "notebook$$files/Tasks/files/" + pagename + ".task";
+    std::ifstream ffile(pagepath);
+    std::string temp, getcol, option;
+    if (ffile.is_open())
+    {
+        tasks.clear();
+        checkUncheck.clear();
+        taskdate.clear();
+        ffile >> pagedate >> pagedatemodified; // read created and last modified date
+        getline(ffile, garbage);               // skip first line
+        while (std::getline(ffile, temp))
+        {
+            option = "1";
+            if (!temp.empty())
+            {
+                std::stringstream s(temp);
+                while (std::getline(s, getcol, '`'))
+                {
+                    if (option == "1")
+                    {
+                        getcol = decrypt(getcol);
+                        tasks.push_back(getcol);
+                        option = "2";
+                    }
+                    else if (option == "2")
+                    {
+                        checkUncheck.push_back(getcol);
+                        option = "3";
+                    }
+                    else
+                    {
+                        taskdate.push_back(getcol);
+                    }
+                }
+            }
+        }
+    }
+}
+void TaskPage::addTask()
+{
+    if (pageopened.length() == 0)
+    {
+        if (showMessage("Create task page to add task", "04", true))
+        {
+            return addPage();
+        }
+        else
+        {
+            return;
+        }
+    }
+    std::string taskline;
+    system("cls");
+    notebook();
+    gotoxy(50, 6);
+    std::cout << pageopened;
+    gotoxy(49, 7);
+    std::cout << "+=========+";
+    gotoxy(46, 10);
+    std::cout << "Enter R to return";
+    while (true)
+    {
+        gotoxy(10, 12);
+        std::cout << "Enter Task: ";
+        getline(std::cin, taskline);
+        if (taskline.length() == 0)
+        {
+            continue;
+        }
+        else if (taskline == "r" || taskline == "R")
+        {
+            writeTask(pageopened);
+            return;
+        }
+        else
+        {
+            replace(taskline.begin(), taskline.end(), '`', '\''); // remove begginning and ending spaces
+            tasks.push_back(taskline);
+            checkUncheck.push_back("0"); // default not checked
+            taskdate.push_back("0-0-0"); // default 0-0-0 for date checked
+
+            gotoxy(45, 16);
+            std::cout << "Do you want to add More tasks(Y/N)";
+            char choice;
+            choice = getch();
+
+            if (tolower(choice) == 'n')
+            {
+                writeTask(pageopened);
+                return;
+            }
+            else
+            {
+                erasePrint(0, 300, 12, 16);
+                continue;
+            }
+        }
+    }
+}
+void TaskPage::addPage()
+{
+    if (pageopened.length() > 0) // if page already opened then it will display an option
+    {
+        if (!showMessage("This will archive current opened page " + pageopened, "04", true))
+        {
+            return;
+        }
+    }
+    std::string pagename, pagenamecopy, tempcheck;
+    std::vector<std::string> pagelist;
+    bool alreadyexist = false, renamed = false;
+    system("cls");
+    gotoxy(40, 4);
+    std::cout << "Minimum 3 and Maximum 30 characters allowed";
+    gotoxy(50, 6);
+    std::cout << "(Enter R to return)";
+    while (true)
+    {
+        gotoxy(30, 11);
+        std::cout << "Enter TaskList Page Name: ";
+        gotoxy(58, 12);
+        std::cout << "_________________________";
+        gotoxy(58, 11);
+        getline(std::cin, pagename);
+        if (pagename.length() == 0)
+        {
+            continue;
+        }
+        if (pagename == "r" || pagename == "R")
+        {
+            return;
+        }
+        else if (pagename.length() < 3 || pagename.length() > 30)
+        {
+            gotoxy(40, 14);
+            std::cout << "Minimum 3 and Maximum 30 characters allowed";
+            getch();
+            erasePrint(0, 150, 8, 14);
+            continue;
+        }
+        else
+        {
+            pagename = std::regex_replace(pagename, std::regex("^ +| +$"), "$1"); // remove beginning and ending spaces
+            pagename = modifyname(pagename);                                      // replace space with - so there will be no issues while running
+            pagenamecopy = pagename;
+            pagelist = getAllFileNames("notebook$$files/Tasks/files"); // get all file names in tasks
+            for (int i = 0, m = 1; i < pagelist.size(); i++)
+            {
+                alreadyexist = false;
+                tempcheck = pagelist.at(i);
+                if (tempcheck == (pagenamecopy + ".task"))
+                {
+                    alreadyexist = true;
+                    pagenamecopy = pagename + std::to_string(m); // if page already exist then add 1 if that also then 2
+                    m++;
+                    renamed = true;
+                    i = 0;
+                }
+            }
+            if (renamed)
+            {
+                gotoxy(40, 14);
+                std::cout << "Tasklist page already exist with name \"" + pagename + "\"";
+            }
+            gotoxy(30, 15);
+            std::cout << "Do you want to create Tasklist page with name(Y/N/R): \"" + pagenamecopy + "\"";
+            char choice = getch();
+            if (tolower(choice) == 'y')
+            {
+                tasks.clear();
+                checkUncheck.clear();
+                taskdate.clear();
+
+                std::ofstream fout("notebook$$files/Tasks/files/" + pagenamecopy + ".task");
+                if (fout.is_open())
+                {
+                    fout.close();
+                    pageopened = pagenamecopy;
+                    pagedate = getdate();
+                    lastopened = true;
+                    gotoxy(40, 17);
+                    std::cout << "Tasklist page created with name \"" + pagenamecopy + "\"";
+                    std::ofstream flast("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
+                    flast.flush();
+                    flast << pagenamecopy; // add recents to newly added page
+                    flast.close();
+                    getch();
+                    return addTask(); // after creating page redirect to add tasks
+                    break;
+                }
+                else
+                {
+                    showMessage("System error", "04", false);
+                    erasePrint(0, 150, 8, 16);
+                    continue;
+                }
+            }
+            else if (tolower(choice) == 'r')
+            {
+                return;
+            }
+            else
+            {
+                erasePrint(0, 150, 8, 17);
+                continue;
+            }
+        }
+    }
+}
+void TaskPage::printPage(std::string pagename, bool top)
+{
+
+    std::string patha = "notebook$$files/Tasks/files/" + pagename + ".task";
+
+    std::string pgdate, pgmdate;
+    std::vector<std::string> taskp, taskdt, taskc;
+    int i;
+    if (top)
+    {
+        i = 0;
+        std::string pagepath = patha;
+        std::ifstream ffile(pagepath);
+        std::string temp, getcol, option;
+        if (ffile.is_open())
+        {
+            tasks.clear();
+            checkUncheck.clear();
+            taskdate.clear();
+            ffile >> pagedate >> pagedatemodified;
+            pgdate = pagedate;
+            pgmdate = pagedatemodified;
+            getline(ffile, garbage);
+            while (std::getline(ffile, temp))
+            {
+                option = "1";
+                if (!temp.empty())
+                {
+                    std::stringstream s(temp);
+                    while (std::getline(s, getcol, '`'))
+                    {
+                        if (option == "1")
+                        {
+                            getcol = decrypt(getcol);
+                            taskp.push_back(getcol);
+                            option = "2";
+                        }
+                        else if (option == "2")
+                        {
+                            taskc.push_back(getcol);
+                            option = "3";
+                        }
+                        else
+                        {
+                            taskdt.push_back(getcol);
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            showMessage("System error!", "04", false);
+            return;
+        }
+    }
+    else
+    {
+        i = 20;
+        pgdate = pagedate;
+        pgmdate = pagedatemodified;
+        taskp = tasks;
+        taskdt = taskdate;
+        taskc = checkUncheck;
+    }
+
+    gotoxy(1, 3 + i);
+    std::cout << "   created: " << pgdate;
+    gotoxy(50, 3 + i);
+    std::cout << pagename;
+    gotoxy(80, 3 + i);
+    std::cout << "   lastmodified: " << pgmdate;
+    gotoxy(1, 5 + i);
+    std::cout << "+====================================================================================================================+";
+    gotoxy(1, 6 + i);
+    std::cout << "| S.No |                                       Task                                                 last checked     |";
+    gotoxy(1, 7 + i);
+    std::cout << "|======|=============================================================================================================|";
+    {
+
+        std::string tempp, tempp1, tempc, tempd;
+        int nwline = 0;
+        for (int j = 0; j < taskp.size(); j++)
+        {
+            int z = 0, e;
+            tempp1 = taskp.at(j);
+
+            if (taskp.at(j).length() < 79)
+            {
+                gotoxy(10, 8 + j + nwline + i);
+                std::cout << taskp.at(j);
+            }
+            else
+            {
+                std::vector<std::string> printline;
+                std::stringstream s(tempp1);
+                while (getline(s, tempp, ' '))
+                {
+                    printline.push_back(tempp);
+                }
+                int linelength = 0, lengthprinted = 0;
+                for (int k = 0; k < printline.size(); k++)
+                {
+                    linelength = printline.at(k).length();
+                    if (linelength > 78)
+                    {
+                        std::string linecopy = printline.at(k);
+                        if (k != 0)
+                        {
+                            nwline++;
+                            z++;
+                        }
+                        lengthprinted = 0;
+                        char linebychar[linecopy.length()];
+                        std::strcpy(linebychar, linecopy.c_str());
+                        for (int k1 = 1; k1 < linecopy.length() + 1; k1++)
+                        {
+                            gotoxy(10 + lengthprinted, 8 + j + nwline + i);
+                            std::cout << linebychar[k1 - 1];
+                            lengthprinted++;
+                            if (lengthprinted > 77)
+                            {
+                                nwline++;
+                                z++;
+                                lengthprinted = 0;
+                            }
+                        }
+                        std::cout << " ";
+                        lengthprinted++;
+                    }
+                    else if (linelength + lengthprinted < 79)
+                    {
+                        gotoxy(10 + lengthprinted, 8 + j + nwline + i);
+                        std::cout << printline.at(k) << " ";
+                        lengthprinted += linelength + 1;
+                    }
+                    else
+                    {
+                        lengthprinted = 0;
+                        nwline++;
+                        z++;
+                        k--;
+                    }
+
+                    linelength = 0;
+                }
+            }
+
+            {
+
+                int n = (int)(z / 2);
+                if (z % 2 != 0)
+                {
+
+                    n = n + 1;
+                    z = z + 1;
+                    nwline++;
+                }
+                e = z;
+
+                gotoxy(1, 9 + j + nwline + i);
+                std::cout << "|------|--------------------------------------------------------------------------------|-----|----------------------|";
+                while (z >= 0)
+                {
+                    gotoxy(1, 8 + j + nwline - z + i);
+                    std::cout << "|      |";
+                    /* 10-88 */
+                    gotoxy(89, 8 + j + nwline - z + i);
+                    std::cout << "|     |";
+                    gotoxy(118, 8 + j + nwline - z + i);
+                    std::cout << "|";
+                    z--;
+                }
+                z = e;
+                gotoxy(4, 8 + j + nwline - z + n + i);
+                std::cout << (j + 1);
+                gotoxy(89, 8 + j + nwline - z + n + i);
+                if (taskc.at(j) == "0")
+                {
+                    std::cout << "|     |";
+                }
+                else
+                {
+                    std::cout << "|  X  |";
+                }
+                gotoxy(105, 8 + j + nwline - z + n + i);
+                std::cout << taskdt.at(j);
+                nwline++;
+            }
+        }
+    }
+    if (top)
+    {
+        gotoxy(50, 1);
+        std::cout << "(Press R to return)";
+        while (true)
+        {
+            char choicer = getch();
+            if (tolower(choicer) == 'r')
+            {
+                return;
+            }
+        }
+    }
+}
+void TaskPage::searchTaskPage()
+{
+    std::string keyword, temp1;
+    std::vector<std::string> matchedPages, allPages;
+    system("cls");
+    notebook();
+    gotoxy(50, 6);
+    std::cout << "Search TaskPage";
+    gotoxy(49, 7);
+    std::cout << "+===============+";
+
+    keyword = searchBar("Taskpages");
+    if (keyword == "r" || keyword == "R")
+    {
+        return;
+    }
+    {
+        allPages = getAllFileNames("notebook$$files/Tasks/files");
+        if (keyword == "all")
+        {
+            for (int i = 0; i < allPages.size(); i++)
+            {
+                temp1 = allPages.at(i);
+                temp1 = temp1.substr(0, temp1.length() - 5);
+                matchedPages.push_back(temp1);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < allPages.size(); i++)
+            {
+                if (allPages.at(i).find(keyword) != -1)
+                {
+                    temp1 = allPages.at(i);
+                    temp1 = temp1.substr(0, temp1.length() - 5);
+                    matchedPages.push_back(temp1);
+                }
+            }
+        }
+    }
+    while (true)
+    {
+        gotoxy(1, 16);
+        std::cout << "+==================================================================================================+";
+        gotoxy(1, 17);
+        std::cout << "                    Search Results For " << keyword << "   -  " << matchedPages.size() << "     ";
+        gotoxy(1, 18);
+        std::cout << "+==================================================================================================+";
+        for (int i = 0; i < matchedPages.size(); i++)
+        {
+
+            gotoxy(2, 19 + i);
+            std::cout << i + 1 << ". " << matchedPages.at(i);
+        }
+        gotoxy(0, 0);
+        notebook();
+        gotoxy(50, 6);
+        std::cout << "Search TaskPage";
+        gotoxy(49, 7);
+        std::cout << "+===============+";
+        gotoxy(48, 9);
+        std::cout << "1.Search again";
+        gotoxy(48, 10);
+        std::cout << "2.Open TaskPage";
+        gotoxy(48, 11);
+        std::cout << "3.Load Taskpage";
+        gotoxy(48, 12);
+        std::cout << "4.Return SearchPage";
+        gotoxy(30, 14);
+        std::cout << "Select your option: ";
+        char choice = getch();
+        erasePrint(0, 100, 9, 14);
+        if (choice == '1')
+        {
+            return searchTaskPage();
+            break;
+        }
+        else if (choice == '2' || choice == '3')
+        {
+            gotoxy(30, 12);
+            std::cout << "Enter Taskpage number: ";
+            int n;
+            std::cin >> n;
+            if (std::cin.fail())
+            {
+                std::cin.clear();
+            }
+            getline(std::cin, garbage);
+            if (n > 0 && n <= matchedPages.size())
+            {
+
+                system("cls");
+                if (choice == '2')
+                    printPage(matchedPages.at(n - 1), true);
+                else if (choice == '3')
+                {
+                    pageopened = matchedPages.at(n - 1);
+                    firsttime = true;
+                    std::ofstream flast("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
+                    flast.flush();
+                    flast << pageopened;
+                    flast.close();
+                    lastopened = true;
+                    return taskMenu();
+                }
+                erasePrint(0, 100, 9, 14);
+                system("cls");
+                continue;
+            }
+            else
+            {
+                gotoxy(45, 14);
+                std::cout << "Taskpage not found";
+                getch();
+                erasePrint(0, 100, 9, 14);
+                continue;
+            }
+        }
+        else if (choice == '4')
+        {
+            return;
+            break;
+        }
+        else
+        {
+            erasePrint(0, 100, 9, 14);
+            continue;
+        }
+    }
+    return searchPage();
+}
+
+void TaskPage::searchPage()
+{
+
+    system("cls");
+    notebook();
+    gotoxy(50, 6);
+    std::cout << "Search TaskPage";
+    gotoxy(49, 7);
+    std::cout << "+===============+";
+    gotoxy(48, 9);
+    std::cout << "1.Search TaskPage";
+    gotoxy(48, 10);
+    std::cout << "2.Search Tasks";
+    gotoxy(48, 11);
+    std::cout << "3.Return Taskmenu";
+    gotoxy(30, 13);
+    std::cout << "Select your option: ";
+    while (true)
+    {
+        gotoxy(52, 13);
+        char choice = getch();
+
+        if (choice == '1')
+        {
+            searchTaskPage();
+            break;
+        }
+        else if (choice == '2')
+        {
+            // searchTasks();
+        }
+        else if (choice == '3')
+        {
+            return;
+        }
+        else
+        {
+            continue;
+        }
+    }
+    return searchPage();
+}
+
+void TaskPage::taskMenu()
+{
+    if (firsttime) // if first time then read file name from recents
+    {
+        firsttime = false;
+        std::string readlastpage;
+        std::ifstream ffile("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
+        if (ffile.is_open())
+        {
+            ffile >> readlastpage;
+            if (!readlastpage.empty())
+            {
+                lastopened = true;
+                pageopened = readlastpage;
+            }
+        }
+        return taskMenu();
+    }
+    else
+    {
+        if (pageopened.length() > 0) // if page opened and has length then read all page details
+            readTask(pageopened);
+        char selected = false;
+        while (!selected)
+        {
+            char choice;
+            short n;
+            system("cls");
+            notebook();
+            gotoxy(50, 6);
+            std::cout << "TaskList Menu";
+            gotoxy(49, 7);
+            std::cout << "+=============+";
+            gotoxy(28, 10);
+            std::cout << "1.Add Task";
+            gotoxy(28, 11);
+            std::cout << "2.Check/Uncheck";
+            gotoxy(28, 12);
+            std::cout << "3.Delete Task";
+            gotoxy(48, 10);
+            std::cout << "4.Add New Page";
+            gotoxy(48, 11);
+            std::cout << "5.Delete Page";
+            gotoxy(48, 12);
+            std::cout << "6.Previous Pages";
+            gotoxy(68, 10);
+            std::cout << "7.Archive Page";
+            gotoxy(68, 11);
+            std::cout << "8.Return Main Menu";
+            gotoxy(68, 12);
+            std::cout << "9.Exit";
+            gotoxy(30, 14);
+            std::cout << "Select Your choice: ";
+            printPage(pageopened, false); // print task page with all details
+            gotoxy(0, 0);
+            gotoxy(53, 14);
+            choice = getch();
+            switch (choice)
+            {
+            case '1':
+            {
+                addTask(); // add task and return
+                break;
+            }
+            case '2':
+            {
+                if (lastopened) // if page opened then do this operation else show page not found
+                {
+                    while (true)
+                    {
+                        if (tasks.size() == 0)
+                        {
+                            showMessage("No tasks to check", "04", false);
+                            writeTask(pageopened);
+                            break;
+                        }
+                        char checkChoice;
+                        int n;
+                        erasePrint(0, 100, 10, 14);
+                        gotoxy(50, 10);
+                        std::cout << " Current Tasks "
+                                  << "1-" << tasks.size();
+                        gotoxy(20, 12);
+                        std::cout << "Enter Task number to check/Uncheck: ";
+                        std::cin >> n;
+                        if (std::cin.fail())
+                        {
+                            std::cin.clear();
+                        }
+                        getline(std::cin, garbage);
+                        if (n > 0 && n <= tasks.size())
+                        {
+                            if (checkUncheck.at(n - 1) == "0")
+                            {
+                                checkUncheck.at(n - 1) = "1";
+                            }
+                            else
+                            {
+                                checkUncheck.at(n - 1) = "0";
+                            }
+                            taskdate.at(n - 1) = getdate();
+                            printPage(pageopened, false);
+                        }
+                        else
+                        {
+                            gotoxy(50, 13);
+                            std::cout << "Task not found";
+                        }
+                        gotoxy(45, 14);
+                        std::cout << "Do you want to check another task(Y/N)? ";
+
+                        checkChoice = getch();
+                        if (tolower(checkChoice) == 'y')
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            writeTask(pageopened);
+                            break;
+                        }
+                    }
+                    pagedatemodified = getdate();
+                }
+                else
+                {
+                    showMessage("Page not found", "04", false);
+                }
+                break;
+            }
+            case '3':
+            {
+                if (lastopened)
+                {
+                    while (true)
+                    {
+
+                        if (tasks.size() == 0)
+                        {
+                            showMessage("No tasks to delete", "04", false);
+                            writeTask(pageopened);
+                            break;
+                        }
+                        erasePrint(0, 100, 10, 14);
+                        char delChoice;
+                        int n;
+                        gotoxy(50, 10);
+                        std::cout << " Current Tasks "
+                                  << "1-" << tasks.size();
+                        gotoxy(30, 12);
+                        std::cout << "Enter Task number to delete: ";
+                        std::cin >> n;
+                        if (std::cin.fail())
+                        {
+                            std::cin.clear();
+                        }
+                        getline(std::cin, garbage);
+                        if (n > tasks.size())
+                        {
+                            gotoxy(45, 13);
+                            std::cout << "Selected task doesn't exist";
+                        }
+                        else if (n == tasks.size())
+                        {
+                            tasks.pop_back();
+                            checkUncheck.pop_back();
+                            taskdate.pop_back();
+                            gotoxy(50, 13);
+                            std::cout << "Deleted successfully";
+                               printPage(pageopened, false);
+                        }
+                        else if (n == 1 && n <= tasks.size())
+                        {
+                            tasks.erase(tasks.begin());
+                            checkUncheck.erase(checkUncheck.begin());
+                            taskdate.erase(taskdate.begin());
+                            gotoxy(50, 13);
+                            std::cout << "Deleted successfully ";
+                               printPage(pageopened, false);
+                        }
+                        else if (n > 1 && n <= tasks.size())
+                        {
+                            tasks.erase(tasks.begin() + n - 1);
+                            checkUncheck.erase(checkUncheck.begin() + n - 1);
+                            gotoxy(50, 12);
+                            std::cout << "Deleted successfully";
+                            printPage(pageopened, false);
+                        }
+                        else
+                        {
+                            gotoxy(45, 13);
+                            std::cout << "Selected task doesn't exist";
+                        }
+                        gotoxy(45, 14);
+                        std::cout << "Do you want to delete another task(Y/N)? ";
+                        delChoice = getch();
+                        if (delChoice == 'y' || delChoice == 'Y')
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            writeTask(pageopened);
+                            break;
+                        }
+                    }
+                    pagedatemodified = getdate();
+                }
+                else
+                {
+                    showMessage("Page not found", "04", false);
+                }
+
+                break;
+            }
+            case '4':
+            {
+                addPage();
+                pagedatemodified = getdate();
+                break;
+            }
+            case '5':
+            {
+                if (lastopened)
+                {
+                    if (showMessage("This will delete this page permanantly", "04", true))
+                    {
+                        std::string pathC = "notebook$$files/Tasks/files/" + pageopened + ".task";
+                        char path[pathC.length()];
+                        std::strcpy(path, pathC.c_str());
+                        if (remove(path) == 0)
+                        {
+
+                            system("cls");
+                            gotoxy(45, 10);
+                            std::cout << "Deleted page Successfully";
+                            std::ofstream ffile("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
+                            ffile.flush();
+                            ffile.close();
+                            tasks.clear();
+                            checkUncheck.clear();
+                            taskdate.clear();
+                            lastopened = false;
+                            pageopened = "";
+                            pagedate = "";
+                            pagedatemodified = "";
+                            return taskMenu();
+                        }
+                        else
+                        {
+                            showMessage("Page not found", "04", false);
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    showMessage("Page not found", "04", false);
+                }
+                break;
+            }
+            case '6':
+            {
+
+                searchPage();
+                break;
+            }
+            case '7':
+            {
+                std::ofstream flast("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
+                if (flast.is_open())
+                {
+                    pageopened = "";
+                    lastopened = false;
+                    tasks.clear();
+                    checkUncheck.clear();
+                    taskdate.clear();
+                    pagedatemodified = "";
+                    pagedate = "";
+                    flast.flush();
+                    flast.close();
+                }
+                else
+                {
+                    showMessage("System error", "04", false);
+                }
+                break;
+            }
+            case '8':
+            {
+                return main_menu();
+                break;
+            }
+            case '9':
+            {
+                if (showMessage("You are going to exit from this application", "04", true))
+                {
+
+                    exit(0);
+                }
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    return taskMenu();
+}
+
+/*                                             QUOTES SECTION                                                          */
+
 void Quotes::readQuotes() // read quotes
 {
     std::ifstream fquote("notebook$$files/Quotes/quotes.txt");
@@ -1971,7 +2920,7 @@ void Quotes::readQuotes() // read quotes
             }
             break;
         }
-        case '2':
+        case '2': // mode 2  means random quote
         {
             randomQuote.clear();
             while (!fquote.eof())
@@ -2003,11 +2952,11 @@ void Quotes::changeQuoteMode()
     gotoxy(49, 7);
     std::cout << "+==========+";
     gotoxy(48, 9);
-    std::cout << "1.One quote";
+    std::cout << "1.One quote"; // use need to enter new quote which is one to display in all pages
     gotoxy(48, 10);
-    std::cout << "2.Previous One quote";
+    std::cout << "2.Previous One quote"; // use need to enter new quote which is one to display in all pages
     gotoxy(48, 11);
-    std::cout << "3.Random quote";
+    std::cout << "3.Random quote"; // random quotes user had to add tasks in view menu
     gotoxy(48, 12);
     std::cout << "4.Return quote menu";
     gotoxy(30, 13);
@@ -2062,12 +3011,13 @@ void Quotes::changeQuoteMode()
         }
         case '2':
         {
-            std::ofstream fquotemode("notebook$$files/Quotes/quotemode.txt", std::ios::trunc);
+            std::ofstream fquotemode("notebook$$files/Quotes/quotemode.txt", std::ios::trunc); // if user has entered one quote then it set else not
             quoteMode = false;
             fquotemode << "1";
             selectchoice = false;
             fquotemode.close();
             readQuotes();
+
             break;
         }
         case '3':
@@ -2290,909 +3240,6 @@ void Quotes::quote_menu()
     }
     return quote_menu();
 }
-std::string TaskPage::getdate()
-{
-    std::string returndate;
-    time_t t = time(0);
-    tm *now = localtime(&t);
-
-    returndate = std::to_string(now->tm_mday) + "-" + std::to_string(now->tm_mon + 1) + "-" + std::to_string(now->tm_year + 1900);
-    return returndate;
-}
-void TaskPage::writeTask(std::string pagename)
-{
-    std::string pagepath = "notebook$$files/Tasks/files/" + pagename + ".task";
-    std::ofstream ffile(pagepath);
-    ffile.flush();
-    if (ffile.is_open())
-    {
-        std::string writetask;
-        int i = 0;
-        ffile << pagedate << " " << getdate() << std::endl;
-        while (i < tasks.size())
-        {
-            writetask = tasks.at(i);
-            writetask = encrypt(writetask);
-            ffile << writetask + "`" << checkUncheck.at(i) << "`" << taskdate.at(i) << std::endl;
-            i++;
-        }
-    }
-}
-void TaskPage::readTask(std::string pagename)
-{
-    std::string pagepath = "notebook$$files/Tasks/files/" + pagename + ".task";
-    std::ifstream ffile(pagepath);
-    std::string temp, getcol, option;
-    if (ffile.is_open())
-    {
-        tasks.clear();
-        checkUncheck.clear();
-        taskdate.clear();
-        ffile >> pagedate >> pagedatemodified;
-        getline(ffile, garbage);
-        while (std::getline(ffile, temp))
-        {
-            option = "1";
-            if (!temp.empty())
-            {
-                std::stringstream s(temp);
-                while (std::getline(s, getcol, '`'))
-                {
-                    if (option == "1")
-                    {
-                        getcol = decrypt(getcol);
-                        tasks.push_back(getcol);
-                        option = "2";
-                    }
-                    else if (option == "2")
-                    {
-                        checkUncheck.push_back(getcol);
-                        option = "3";
-                    }
-                    else
-                    {
-                        taskdate.push_back(getcol);
-                    }
-                }
-            }
-        }
-    }
-}
-void TaskPage::addPage()
-{
-    if (pageopened.length() > 0)
-    {
-        if (!showMessage("This will archive current opened page " + pageopened, "04", true))
-        {
-            return;
-        }
-    }
-    std::string pagename, pagenamecopy, tempcheck;
-    std::vector<std::string> pagelist;
-    bool alreadyexist = false, renamed = false;
-    system("cls");
-    gotoxy(40, 5);
-    std::cout << "Minimum 3 and Maximum 30 characters allowed";
-    gotoxy(50, 6);
-    std::cout << "(Enter R to return)";
-    while (true)
-    {
-        gotoxy(40, 8);
-        std::cout << "Enter TaskList Page Name: ";
-        gotoxy(68, 9);
-        std::cout << "====================";
-        gotoxy(68, 8);
-        getline(std::cin, pagename);
-        if (pagename.length() == 0)
-        {
-            continue;
-        }
-        if (pagename == "r" || pagename == "R")
-        {
-            return;
-        }
-        else if (pagename.length() < 3 || pagename.length() > 30)
-        {
-            gotoxy(40, 12);
-            std::cout << "Minimum 3 and Maximum 30 characters allowed";
-            getch();
-            erasePrint(0, 150, 8, 12);
-            continue;
-        }
-        else
-        {
-            pagename = std::regex_replace(pagename, std::regex("^ +| +$"), "$1");
-            pagename = modifyname(pagename);
-            pagenamecopy = pagename;
-            pagelist = getAllFileNames("notebook$$files/Tasks/files");
-            for (int i = 0, m = 1; i < pagelist.size(); i++)
-            {
-                alreadyexist = false;
-                tempcheck = pagelist.at(i);
-                if (tempcheck == (pagenamecopy + ".task"))
-                {
-                    alreadyexist = true;
-                    pagenamecopy = pagename + std::to_string(m);
-                    m++;
-                    renamed = true;
-                    i = 0;
-                }
-            }
-            if (renamed)
-            {
-                gotoxy(45, 11);
-                std::cout << "Tasklist page already exist with name " + pagename;
-            }
-            gotoxy(30, 13);
-            std::cout << "Do you want to create Tasklist page with name(Y/N/R): \"" + pagenamecopy + "\"";
-            char choice = getch();
-            if (tolower(choice) == 'y')
-            {
-                std::ofstream fout("notebook$$files/Tasks/files/" + pagenamecopy + ".task");
-                if (fout.is_open())
-                {
-                    fout.close();
-                    pageopened = pagenamecopy;
-                    pagedate = getdate();
-                    lastopened = true;
-                    gotoxy(45, 15);
-                    std::cout << "Tasklist page created with name " + pagenamecopy;
-                    std::ofstream flast("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
-                    flast.flush();
-                    flast << pagenamecopy;
-                    flast.close();
-                    getch();
-                    return addTask();
-                    break;
-                }
-                else
-                {
-                    showMessage("System error", "04", false);
-                    erasePrint(0, 150, 8, 16);
-                    continue;
-                }
-            }
-            else if (tolower(choice) == 'r')
-            {
-                return;
-            }
-            else
-            {
-                erasePrint(0, 150, 8, 16);
-                continue;
-            }
-        }
-    }
-}
-void TaskPage::searchTaskPage()
-{
-    std::string keyword, temp1;
-    std::vector<std::string> matchedPages, allPages;
-    system("cls");
-    notebook();
-    gotoxy(50, 6);
-    std::cout << "Search TaskPage";
-    gotoxy(49, 7);
-    std::cout << "+===============+";
-
-    keyword = searchBar("Taskpages");
-    if (keyword == "r" || keyword == "R")
-    {
-        return;
-    }
-    {
-        allPages = getAllFileNames("notebook$$files/Tasks/files");
-        if (keyword == "all")
-        {
-            for (int i = 0; i < allPages.size(); i++)
-            {
-                temp1 = allPages.at(i);
-                temp1 = temp1.substr(0, temp1.length() - 5);
-                matchedPages.push_back(temp1);
-            }
-        }
-        else
-        {
-            for (int i = 0; i < allPages.size(); i++)
-            {
-                if (allPages.at(i).find(keyword) != -1)
-                {
-                    temp1 = allPages.at(i);
-                    temp1 = temp1.substr(0, temp1.length() - 5);
-                    matchedPages.push_back(temp1);
-                }
-            }
-        }
-    }
-    while (true)
-    {
-        gotoxy(1, 16);
-        std::cout << "+==================================================================================================+";
-        gotoxy(1, 17);
-        std::cout << "                    Search Results For " << keyword << "   -  " << matchedPages.size() << "     ";
-        gotoxy(1, 18);
-        std::cout << "+==================================================================================================+";
-        for (int i = 0; i < matchedPages.size(); i++)
-        {
-
-            gotoxy(2, 19 + i);
-            std::cout << i + 1 << ". " << matchedPages.at(i);
-        }
-        gotoxy(0, 0);
-        notebook();
-        gotoxy(50, 6);
-        std::cout << "Search TaskPage";
-        gotoxy(49, 7);
-        std::cout << "+===============+";
-        gotoxy(48, 9);
-        std::cout << "1.Search again";
-        gotoxy(48, 10);
-        std::cout << "2.Open TaskPage";
-        gotoxy(48, 11);
-        std::cout << "3.Load Taskpage";
-        gotoxy(48, 12);
-        std::cout << "4.Return SearchPage";
-        gotoxy(30, 14);
-        std::cout << "Select your option: ";
-        char choice = getch();
-        erasePrint(0, 100, 9, 14);
-        if (choice == '1')
-        {
-            return searchTaskPage();
-            break;
-        }
-        else if (choice == '2' || choice == '3')
-        {
-            gotoxy(30, 12);
-            std::cout << "Enter Taskpage number: ";
-            int n;
-            std::cin >> n;
-            if (std::cin.fail())
-            {
-                std::cin.clear();
-            }
-            getline(std::cin, garbage);
-            if (n > 0 && n <= matchedPages.size())
-            {
-
-                system("cls");
-                if (choice == '2')
-                    printPage(matchedPages.at(n - 1), true);
-                else if (choice == '3')
-                {
-                    pageopened = matchedPages.at(n - 1);
-                    firsttime = true;
-                    std::ofstream flast("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
-                    flast.flush();
-                    flast << pageopened;
-                    flast.close();
-                    lastopened = true;
-                    return taskMenu();
-                }
-                erasePrint(0, 100, 9, 14);
-                system("cls");
-                continue;
-            }
-            else
-            {
-                gotoxy(45, 14);
-                std::cout << "Taskpage not found";
-                getch();
-                erasePrint(0, 100, 9, 14);
-                continue;
-            }
-        }
-        else if (choice == '4')
-        {
-            break;
-        }
-        else
-        {
-            erasePrint(0, 100, 9, 14);
-            continue;
-        }
-    }
-    return searchPage();
-}
-
-void TaskPage::searchPage()
-{
-
-    system("cls");
-    notebook();
-    gotoxy(50, 6);
-    std::cout << "Search TaskPage";
-    gotoxy(49, 7);
-    std::cout << "+===============+";
-    gotoxy(48, 9);
-    std::cout << "1.Search TaskPage";
-    gotoxy(48, 10);
-    std::cout << "2.Search Tasks";
-    gotoxy(48, 11);
-    std::cout << "3.Return Taskmenu";
-    gotoxy(30, 13);
-    std::cout << "Select your option: ";
-    while (true)
-    {
-        gotoxy(52, 13);
-        char choice = getch();
-
-        if (choice == '1')
-        {
-            searchTaskPage();
-            break;
-        }
-        else if (choice == '2')
-        {
-            // searchTasks();
-        }
-        else if (choice == '3')
-        {
-            return;
-        }
-        else
-        {
-            continue;
-        }
-    }
-    return searchPage();
-}
-void TaskPage::printPage(std::string pagename, bool top)
-{
-
-    std::string patha = "notebook$$files/Tasks/files/" + pagename + ".task";
-
-    std::string pgdate, pgmdate;
-    std::vector<std::string> taskp, taskdt, taskc;
-    int i;
-    if (top)
-    {
-        i = 0;
-        std::string pagepath = patha;
-        std::ifstream ffile(pagepath);
-        std::string temp, getcol, option;
-        if (ffile.is_open())
-        {
-            tasks.clear();
-            checkUncheck.clear();
-            taskdate.clear();
-            ffile >> pagedate >> pagedatemodified;
-            pgdate = pagedate;
-            pgmdate = pagedatemodified;
-            getline(ffile, garbage);
-            while (std::getline(ffile, temp))
-            {
-                option = "1";
-                if (!temp.empty())
-                {
-                    std::stringstream s(temp);
-                    while (std::getline(s, getcol, '`'))
-                    {
-                        if (option == "1")
-                        {
-                            getcol = decrypt(getcol);
-                            taskp.push_back(getcol);
-                            option = "2";
-                        }
-                        else if (option == "2")
-                        {
-                            taskc.push_back(getcol);
-                            option = "3";
-                        }
-                        else
-                        {
-                            taskdt.push_back(getcol);
-                        }
-                    }
-                }
-            }
-        }
-        else
-        {
-            showMessage("System error!", "04", false);
-            return;
-        }
-    }
-    else
-    {
-        i = 20;
-        pgdate = pagedate;
-        pgmdate = pagedatemodified;
-        taskp = tasks;
-        taskdt = taskdate;
-        taskc = checkUncheck;
-    }
-
-    gotoxy(1, 3 + i);
-    std::cout << "   created: " << pgdate;
-    gotoxy(50, 3 + i);
-    std::cout << pagename;
-    gotoxy(80, 3 + i);
-    std::cout << "   lastmodified: " << pgmdate;
-    gotoxy(1, 5 + i);
-    std::cout << "+====================================================================================================================+";
-    gotoxy(1, 6 + i);
-    std::cout << "| S.No |                                       Task                                                 last checked     |";
-    gotoxy(1, 7 + i);
-    std::cout << "|======|=============================================================================================================|";
-    {
-
-        std::string tempp, tempp1, tempc, tempd;
-        int nwline = 0;
-        for (int j = 0; j < taskp.size(); j++)
-        {
-            int z = 0, e;
-            tempp1 = taskp.at(j);
-
-            if (taskp.at(j).length() < 79)
-            {
-                gotoxy(10, 8 + j + nwline + i);
-                std::cout << taskp.at(j);
-            }
-            else
-            {
-                std::vector<std::string> printline;
-                std::stringstream s(tempp1);
-                while (getline(s, tempp, ' '))
-                {
-                    printline.push_back(tempp);
-                }
-                int linelength = 0, lengthprinted = 0;
-                for (int k = 0; k < printline.size(); k++)
-                {
-                    linelength = printline.at(k).length();
-                    if (linelength > 78)
-                    {
-                        std::string linecopy = printline.at(k);
-                        if (k != 0)
-                        {
-                            nwline++;
-                            z++;
-                        }
-                        lengthprinted = 0;
-                        char linebychar[linecopy.length()];
-                        std::strcpy(linebychar, linecopy.c_str());
-                        for (int k1 = 1; k1 < linecopy.length() + 1; k1++)
-                        {
-                            gotoxy(10 + lengthprinted, 8 + j + nwline + i);
-                            std::cout << linebychar[k1 - 1];
-                            lengthprinted++;
-                            if (lengthprinted > 77)
-                            {
-                                nwline++;
-                                z++;
-                                lengthprinted = 0;
-                            }
-                        }
-                        std::cout << " ";
-                        lengthprinted++;
-                    }
-                    else if (linelength + lengthprinted < 79)
-                    {
-                        gotoxy(10 + lengthprinted, 8 + j + nwline + i);
-                        std::cout << printline.at(k) << " ";
-                        lengthprinted += linelength + 1;
-                    }
-                    else
-                    {
-                        lengthprinted = 0;
-                        nwline++;
-                        z++;
-                        k--;
-                    }
-
-                    linelength = 0;
-                }
-            }
-
-            {
-
-                int n = (int)(z / 2);
-                if (z % 2 != 0)
-                {
-
-                    n = n + 1;
-                    z = z + 1;
-                    nwline++;
-                }
-                e = z;
-
-                gotoxy(1, 9 + j + nwline + i);
-                std::cout << "|------|--------------------------------------------------------------------------------|-----|----------------------|";
-                while (z >= 0)
-                {
-                    gotoxy(1, 8 + j + nwline - z + i);
-                    std::cout << "|      |";
-                    /* 10-88 */
-                    gotoxy(89, 8 + j + nwline - z + i);
-                    std::cout << "|     |";
-                    gotoxy(118, 8 + j + nwline - z + i);
-                    std::cout << "|";
-                    z--;
-                }
-                z = e;
-                gotoxy(4, 8 + j + nwline - z + n + i);
-                std::cout << (j + 1);
-                gotoxy(89, 8 + j + nwline - z + n + i);
-                if (taskc.at(j) == "0")
-                {
-                    std::cout << "|     |";
-                }
-                else
-                {
-                    std::cout << "|  X  |";
-                }
-                gotoxy(105, 8 + j + nwline - z + n + i);
-                std::cout << taskdt.at(j);
-                nwline++;
-            }
-        }
-    }
-    if (top)
-    {
-        gotoxy(50, 1);
-        std::cout << "(Press R to return)";
-        while (true)
-        {
-            char choicer = getch();
-            if (tolower(choicer) == 'r')
-            {
-                return;
-            }
-        }
-    }
-}
-void TaskPage::addTask()
-{
-    if (pageopened.length() == 0)
-    {
-        if (showMessage("Create task page to add task", "04", true))
-        {
-            return addPage();
-        }
-        else
-        {
-            return;
-        }
-    }
-    std::string taskline;
-    system("cls");
-    notebook();
-    gotoxy(50, 6);
-    std::cout << pageopened;
-    gotoxy(49, 7);
-    std::cout << "+=========+";
-    gotoxy(46, 10);
-    std::cout << "Enter R to return";
-    while (true)
-    {
-        gotoxy(20, 12);
-        std::cout << "Enter Task: ";
-        getline(std::cin, taskline);
-        if (taskline.length() == 0)
-        {
-            continue;
-        }
-        else if (taskline == "r" || taskline == "R")
-        {
-            writeTask(pageopened);
-            return;
-        }
-        else
-        {
-            replace(taskline.begin(), taskline.end(), '`', '\'');
-            tasks.push_back(taskline);
-            checkUncheck.push_back("0");
-            taskdate.push_back("0-0-0");
-
-            gotoxy(45, 14 + tasks.size());
-            std::cout << "Do you want to add More tasks(Y/N)";
-            char choice;
-            choice = getch();
-
-            if (tolower(choice) == 'n')
-            {
-                writeTask(pageopened);
-                return;
-            }
-            else
-            {
-                erasePrint(0, 300, 12, 14);
-                continue;
-            }
-        }
-    }
-}
-void TaskPage::taskMenu()
-{
-    if (firsttime)
-    {
-        firsttime = false;
-        std::string readlastpage;
-        std::ifstream ffile("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
-        if (ffile.is_open())
-        {
-            ffile >> readlastpage;
-            if (!readlastpage.empty())
-            {
-                lastopened = true;
-                pageopened = readlastpage;
-            }
-        }
-        return taskMenu();
-    }
-    else
-    {
-        if (pageopened.length() > 0)
-            readTask(pageopened);
-        char selected = false;
-        while (!selected)
-        {
-            char choice;
-            short n;
-            system("cls");
-            notebook();
-            gotoxy(50, 6);
-            std::cout << "TaskList Menu";
-            gotoxy(49, 7);
-            std::cout << "+=============+";
-            gotoxy(28, 10);
-            std::cout << "1.Add Task";
-            gotoxy(28, 11);
-            std::cout << "2.Check/Uncheck";
-            gotoxy(28, 12);
-            std::cout << "3.Delete Task";
-            gotoxy(48, 10);
-            std::cout << "4.Add New Page";
-            gotoxy(48, 11);
-            std::cout << "5.Delete Page";
-            gotoxy(48, 12);
-            std::cout << "6.Previous Pages";
-            gotoxy(68, 10);
-            std::cout << "7.Archive Page";
-            gotoxy(68, 11);
-            std::cout << "8.Return Main Menu";
-            gotoxy(68, 12);
-            std::cout << "9.Exit";
-            gotoxy(30, 14);
-            std::cout << "Select Your choice: ";
-            printPage(pageopened, false);
-            gotoxy(0, 0);
-            gotoxy(53, 14);
-            choice = getch();
-            switch (choice)
-            {
-            case '1':
-            {
-                addTask();
-                break;
-            }
-            case '2':
-            {
-                if (lastopened)
-                {
-                    while (true)
-                    {
-                        char checkChoice;
-                        int n;
-                        erasePrint(0, 100, 10, 14);
-                        gotoxy(50, 10);
-                        std::cout << " Current Tasks "
-                                  << "1-" << tasks.size();
-                        gotoxy(30, 12);
-                        std::cout << "Enter Task number to check/Uncheck: ";
-                        std::cin >> n;
-                        if (std::cin.fail())
-                        {
-                            std::cin.clear();
-                        }
-                        getline(std::cin, garbage);
-                        if (n > 0 && n <= tasks.size())
-                        {
-                            if (checkUncheck.at(n - 1) == "0")
-                            {
-                                checkUncheck.at(n - 1) = "1";
-                            }
-                            else
-                            {
-                                checkUncheck.at(n - 1) = "0";
-                            }
-                            taskdate.at(n - 1) = getdate();
-                            printPage(pageopened, false);
-                        }
-                        else
-                        {
-                            gotoxy(50, 13);
-                            std::cout << "Task not found";
-                        }
-                        gotoxy(20, 14);
-                        std::cout << "Do you want to check another task(Y/N)? ";
-
-                        checkChoice = getch();
-                        if (tolower(checkChoice) == 'y')
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            writeTask(pageopened);
-                            break;
-                        }
-                    }
-                    pagedatemodified = getdate();
-                }
-                else
-                {
-                    showMessage("Page not found", "04", false);
-                }
-                break;
-            }
-            case '3':
-            {
-                if (lastopened)
-                {
-                    while (true)
-                    {
-                        erasePrint(0, 100, 10, 14);
-                        char delChoice;
-                        int n;
-                        gotoxy(50, 10);
-                        std::cout << " Current Tasks "
-                                  << "1-" << tasks.size();
-                        gotoxy(30, 12);
-                        std::cout << "Enter Task number to delete: ";
-                        std::cin >> n;
-                        if (std::cin.fail())
-                        {
-                            std::cin.clear();
-                        }
-                        getline(std::cin, garbage);
-                        if (n > tasks.size())
-                        {
-                            gotoxy(30, 13);
-                            std::cout << "Selected task doesn't exist";
-                        }
-                        else if (n == tasks.size())
-                        {
-                            tasks.pop_back();
-                            checkUncheck.pop_back();
-                            taskdate.pop_back();
-                            gotoxy(50, 13);
-                            std::cout << "Deleted successfully";
-                        }
-                        else if (n == 1)
-                        {
-                            tasks.erase(tasks.begin());
-                            checkUncheck.erase(checkUncheck.begin());
-                            taskdate.erase(taskdate.begin());
-                            gotoxy(50, 13);
-                            std::cout << "Deleted successfully ";
-                        }
-                        else
-                        {
-                            tasks.erase(tasks.begin() + n - 1);
-                            checkUncheck.erase(checkUncheck.begin() + n - 1);
-                            gotoxy(50, 12);
-                            std::cout << "Deleted successfully";
-                        }
-                        printPage(pageopened, false);
-                        gotoxy(30, 14);
-                        std::cout << "Do you want to delete another task(Y/N)? ";
-                        delChoice = getch();
-                        if (delChoice == 'y' || delChoice == 'Y')
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            writeTask(pageopened);
-                            break;
-                        }
-                    }
-                    pagedatemodified = getdate();
-                }
-                else
-                {
-                    showMessage("Page not found", "04", false);
-                }
-
-                break;
-            }
-            case '4':
-            {
-                addPage();
-                pagedatemodified = getdate();
-                break;
-            }
-            case '5':
-            {
-                if (lastopened)
-                {
-                    if (showMessage("This will delete this page permanantly", "04", true))
-                    {
-                        std::string pathC = "notebook$$files/Tasks/files/" + pageopened + ".task";
-                        char path[pathC.length()];
-                        std::strcpy(path, pathC.c_str());
-                        if (remove(path) == 0)
-                        {
-
-                            system("cls");
-                            gotoxy(45, 10);
-                            std::cout << "Deleted page Successfully";
-                            std::ofstream ffile("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
-                            ffile.flush();
-                            ffile.close();
-                            tasks.clear();
-                            checkUncheck.clear();
-                            taskdate.clear();
-                            lastopened = false;
-                            pageopened = "";
-                            pagedate = "";
-                            pagedatemodified = "";
-                            return taskMenu();
-                        }
-                        else
-                        {
-                            showMessage("Page not found", "04", false);
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    showMessage("Page not found", "04", false);
-                }
-                break;
-            }
-            case '6':
-            {
-
-                searchPage();
-                break;
-            }
-            case '7':
-            {
-                std::ofstream flast("notebook$$files/Tasks/_$lastfile$_/lastopened.txt");
-                if (flast.is_open())
-                {
-                    pageopened = "";
-                    lastopened = false;
-                    tasks.clear();
-                    checkUncheck.clear();
-                    taskdate.clear();
-                    pagedatemodified = "";
-                    pagedate = "";
-                    flast.flush();
-                    flast.close();
-                }
-                else
-                {
-                    showMessage("System error", "04", false);
-                }
-                break;
-            }
-            case '8':
-            {
-                return main_menu();
-                break;
-            }
-            case '9':
-            {
-                if (showMessage("You are going to exit from this application", "04", true))
-                {
-
-                    exit(0);
-                }
-                break;
-            }
-            default:
-                break;
-            }
-        }
-    }
-    return taskMenu();
-}
-
 void main_menu()
 {
     showCursor(true);
@@ -3277,12 +3324,9 @@ void main_menu()
         break;
     }
     case '7':
-        gotoxy(49, 17);
-        std::cout << "Do you want to exit?(Y/N)";
-        op = getch();
-        if (op == 'y' || op == 'Y')
+        if (showMessage("You are going to exit from this application", "04", true))
         {
-            Sleep(100);
+
             exit(0);
         }
         break;
